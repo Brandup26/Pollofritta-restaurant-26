@@ -84,7 +84,7 @@
             opacity: 0; animation: slideUpFade 0.8s ease-out forwards 0.7s;
         }
         body.dark-mode .loading-bar { background: rgba(255,255,255,0.1); }
-        .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.4s cubic-bezier(0.1, 0.8, 0.25, 1); }
+        .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.03s linear; }
         
         @keyframes creativeFloatGlow {
             0% { transform: translateY(0) scale(1); box-shadow: 0 15px 30px rgba(211, 84, 0, 0.15); }
@@ -416,53 +416,56 @@
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             let progress = 0;
-            
-            const progressInterval = setInterval(() => {
-                if (progress < 85) { 
-                    progress += 2; 
-                    bar.style.width = progress + '%'; 
-                }
-            }, 50);
+            const duration = 3000; // المدة الإجمالية للتحميل (3 ثوانٍ)
+            const intervalTime = 30; // تحديث الأنميشن كل 30 ملي ثانية لضمان النعومة المفرطة
+            const step = (intervalTime / duration) * 100;
 
-            try {
-                const [menuRes, deliveryRes] = await Promise.all([
-                    fetch(MENU_CSV_URL).then(res => res.text()),
-                    fetch(DELIVERY_CSV_URL).then(res => res.text())
-                ]);
+            // بدء جلب البيانات من الجداول في الخلفية فوراً بالتوازي مع الأنيميشن
+            const dataPromise = Promise.all([
+                fetch(MENU_CSV_URL).then(res => res.text()),
+                fetch(DELIVERY_CSV_URL).then(res => res.text())
+            ]).catch(err => {
+                console.error("Error fetching data:", err);
+                return ["", ""];
+            });
 
-                rawMenuRows = menuRes.split(/\r?\n/).slice(1);
-                rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
+            // تحريك الـ Progress Bar بسرعة خطية وثابتة تماماً بدون قفزات مفاجئة
+            const progressInterval = setInterval(async () => {
+                progress += step;
+                if (progress >= 100) {
+                    progress = 100;
+                    bar.style.width = '100%';
+                    clearInterval(progressInterval);
 
-                const tempMenu = rawMenuRows.map(row => {
-                    const col = row.split(',');
-                    return { 
-                        category: col[0]?.trim().replace(/"/g, ''), 
-                        name: col[1]?.trim().replace(/"/g, ''),
-                        img: `${IMAGES_PATH}${col[1]?.trim().replace(/"/g, '')}.jpg`
-                    };
-                }).filter(i => i.name);
+                    // ننتظر استجابة الجداول (تكون انتهت بالفعل خلال الـ 3 ثوانٍ) ثم نقوم بمعالجتها وتحميل الصور كاش
+                    const [menuRes, deliveryRes] = await dataPromise;
 
-                const tempCats = [...new Set(tempMenu.map(i => i.category))];
+                    if (menuRes && deliveryRes) {
+                        rawMenuRows = menuRes.split(/\r?\n/).slice(1);
+                        rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
-                await preloadAllImages(tempMenu, tempCats);
+                        const tempMenu = rawMenuRows.map(row => {
+                            const col = row.split(',');
+                            return { 
+                                category: col[0]?.trim().replace(/"/g, ''), 
+                                name: col[1]?.trim().replace(/"/g, ''),
+                                img: `${IMAGES_PATH}${col[1]?.trim().replace(/"/g, '')}.jpg`
+                            };
+                        }).filter(i => i.name);
 
-                clearInterval(progressInterval);
-                bar.style.width = '100%';
+                        const tempCats = [...new Set(tempMenu.map(i => i.category))];
+                        await preloadAllImages(tempMenu, tempCats);
+                    }
 
-                setTimeout(() => {
+                    // الانتقال فوراً لشاشة اختيار الفرع بعد انتهاء الأنيميشن تماماً
                     document.getElementById('splash-screen').classList.add('splash-hidden');
                     setTimeout(() => {
                         document.getElementById("branchModal").classList.add("show");
                     }, 150);
-                }, 400);
-
-            } catch (error) {
-                console.error("Error loading application assets:", error);
-                clearInterval(progressInterval);
-                bar.style.width = '100%';
-                document.getElementById('splash-screen').classList.add('splash-hidden');
-                document.getElementById("branchModal").classList.add("show");
-            }
+                } else {
+                    bar.style.width = progress + '%';
+                }
+            }, intervalTime);
         }
 
         function selectBranch(branch) {
@@ -745,12 +748,10 @@
             if(cart.length === 0) toggleCart(false);
         }
 
-        /* إدارة السلة بنظام الحالات الذكي لمنع الخروج من الموقع عند الضغط على زر رجوع الهاتف */
         function toggleCart(show) { 
             const modal = document.getElementById('cartModal');
             if (show) {
                 modal.style.display = 'flex';
-                // إضافة حالة جديدة للتاريخ ليعمل زر الرجوع كـ "مغلق للسلة"
                 history.pushState({ cartOpen: true }, "");
                 setOrderType(currentOrderType); 
                 updateCartTotals();
@@ -759,12 +760,10 @@
             }
         }
 
-        // الاستماع لحدث زر الرجوع في الهاتف بشكل ذكي وحصري للسلة
         window.addEventListener('popstate', function (event) {
             const modal = document.getElementById('cartModal');
             if (modal.style.display === 'flex') { 
                 modal.style.display = 'none'; 
-                // نمنع الخروج عبر إبقاء المستخدم داخل الصفحة والرجوع للمنيو بسلاسة
             }
         });
 
