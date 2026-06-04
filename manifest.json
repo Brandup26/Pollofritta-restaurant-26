@@ -1,0 +1,25 @@
+{
+  "nav_ those": "ar",
+  "name": "مطعم بولوفريتا Oficial",
+  "short_name": "بولوفريتا",
+  "description": "المنيو الرسمي لمطعم بولوفريتا - أصل الجودة وحكاية كل طعم",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#d35400",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "images/llogo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/llogo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

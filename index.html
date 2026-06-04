@@ -2,13 +2,13 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>بولوفريتا | المنيو الرسمي</title>
     
     <link class="js-manifest" rel="manifest" href="manifest.json">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="بولوفريتا">
     <link rel="apple-touch-icon" href="images/llogo.jpg">
     
@@ -36,7 +36,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; transition: background 0.3s, color 0.3s; }
-        body { background-color: var(--bg); color: var(--main-text); line-height: 1.6; overflow-x: hidden; }
+        body { background-color: var(--bg); color: var(--main-text); line-height: 1.6; overflow-x: hidden; padding-top: max(0px, env(safe-area-inset-top)); }
 
         header, .category-nav, .menu-list, footer { display: none !important; }
         
@@ -49,7 +49,6 @@
         body.app-ready .category-nav { display: flex !important; }
         body.app-ready .menu-list { display: block !important; }
 
-        /* شاشة التحميل الإبداعية والجذابة */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--white); z-index: 9999;
@@ -59,9 +58,8 @@
         }
         .loader-content { text-align: center; }
         
-        /* أنيميشن عائم ثلاثي الأبعاد للوجو مع توهج نبضي */
         .loader-logo-big {
-            width: 115px; height: 115px; border-radius: 28px;
+            width: 140px; height: 140px; border-radius: 32px;
             margin-bottom: 20px; object-fit: cover; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             animation: creativeFloatGlow 3s ease-in-out infinite;
@@ -83,7 +81,6 @@
             opacity: 0; animation: slideUpFade 0.8s ease-out forwards 0.7s;
         }
         body.dark-mode .loading-bar { background: rgba(255,255,255,0.1); }
-        /* تغيير الـ transition ليكون خطي متوافق تماماً مع توقيت الجافاسكريبت */
         .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.03s linear; }
         
         @keyframes creativeFloatGlow {
@@ -98,7 +95,6 @@
         
         .splash-hidden { opacity: 0 !important; pointer-events: none; visibility: hidden !important; }
 
-        /* نافذة اختيار الفرع */
         .branch-modal-backdrop {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--white); z-index: 9998;
@@ -120,11 +116,11 @@
         }
         .branch-btns button:active { transform: scale(0.97); }
 
-        /* مسافات الهيدر العلوية المضغوطة */
         .fixed-top-container {
             position: sticky; top: 0; z-index: 1000; width: 100%;
             display: flex; flex-direction: column; background: var(--white);
             box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+            padding-top: max(0px, env(safe-area-inset-top));
         }
 
         header { 
@@ -132,14 +128,16 @@
             padding: 8px 0 4px 0; background: var(--white);
         }
         .header-top { width: 100%; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 4px; }
-        .header-logo-container { width: 85px; height: 85px; border-radius: 22px; background: white; padding: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); overflow: hidden; }
-        .header-logo { width: 100%; height: 100%; border-radius: 18px; object-fit: cover; }
-        .theme-toggle { position: absolute; right: 20px; top: 0; width: 42px; height: 42px; background: var(--bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; color: var(--main-text); font-size: 1.1rem; }
         
-        .cart-trigger-container { position: absolute; left: 20px; top: 0; }
+        /* تكبير حاوية اللوجو الدائرية في الهيدر الرئيسي لتناسب الهوية الفخمة */
+        .header-logo-container { width: 105px; height: 105px; border-radius: 26px; background: white; padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; }
+        .header-logo { width: 100%; height: 100%; border-radius: 22px; object-fit: cover; }
+        
+        .theme-toggle { position: absolute; right: 20px; top: 12px; width: 42px; height: 42px; background: var(--bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; color: var(--main-text); font-size: 1.1rem; }
+        
+        .cart-trigger-container { position: absolute; left: 20px; top: 12px; }
         .cart-trigger { width: 42px; height: 42px; background: var(--bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
-        /* أنيميشن اهتزاز وقفز السلة المطور */
         @keyframes cartShakeJump {
             0% { transform: scale(1) translateY(0); }
             25% { transform: scale(1.25) translateY(-8px) rotate(-10deg); }
@@ -152,13 +150,11 @@
         .badge { position: absolute; top: -5px; right: -5px; background: #ff3b30; color: white; font-size: 10px; font-weight: 800; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; transform: scale(0); transition: 0.3s; }
         .badge.show { transform: scale(1); }
         
-        /* شريط العنوان التفاعلي */
         .header-bottom-addr { text-align: center; width: 100%; padding: 4px 15px; border-top: 0.5px solid rgba(0,0,0,0.03); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: var(--white); }
         .addr-tag { color: var(--address-tag); font-weight: 800; font-size: 0.95rem; }
         .brand-addr { font-size: 0.85rem; font-weight: 700; }
         .branch-badge { background: var(--accent); color: white; padding: 3px 10px; border-radius: 10px; font-size: 0.72rem; font-weight: 800; margin-top: 3px; cursor: pointer; }
 
-        /* منع تداخل أسماء الأقسام نهائياً بمسافات ممتازة ومدروسة */
         .category-nav { 
             display: flex; overflow-x: auto; white-space: nowrap; 
             padding: 12px 20px; gap: 28px; 
@@ -196,8 +192,7 @@
         .added-notice.show { opacity: 1; transform: translateX(0); }
         .fly-item { position: fixed; z-index: 9999; pointer-events: none; width: 30px; height: 30px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1); }
 
-        /* الفوتر التفاعلي الحصري للفروع */
-        .restaurant-footer { display: flex; flex-direction: column; gap: 15px; padding: 25px 20px; text-align: center; background: var(--white); border-top: 1px solid rgba(0,0,0,0.05); margin-top: 20px; }
+        .restaurant-footer { display: flex; flex-direction: column; gap: 15px; padding: 25px 20px; text-align: center; background: var(--white); border-top: 1px solid rgba(0,0,0,0.05); margin-top: 20px; padding-bottom: max(25px, env(safe-area-inset-bottom)); }
         .footer-branch-phones { background: rgba(0,0,0,0.02); padding: 14px; border-radius: 18px; border: 1px solid rgba(0,0,0,0.04); text-align: center; }
         body.dark-mode .footer-branch-phones { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.04); }
         .footer-branch-phones h4 { color: var(--accent); font-weight: 800; font-size: 1.05rem; margin-bottom: 8px; }
@@ -209,7 +204,7 @@
         .dev-credit a { color: var(--address-tag); text-decoration: none; display: block; margin-top: 3px; }
 
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: flex-end; }
-        .modal-content { background: var(--white); width: 100%; max-width: 500px; padding: 25px; border-radius: 30px 30px 0 0; max-height: 95vh; overflow-y: auto; color: var(--main-text); }
+        .modal-content { background: var(--white); width: 100%; max-width: 500px; padding: 25px; padding-bottom: max(25px, env(safe-area-inset-bottom)); border-radius: 30px 30px 0 0; max-height: 95vh; overflow-y: auto; color: var(--main-text); }
         
         .cart-item-card { display: flex; flex-direction: column; padding: 12px; background: rgba(0,0,0,0.03); border-radius: 18px; margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.03); }
         body.dark-mode .cart-item-card { background: rgba(255,255,255,0.03); }
@@ -256,6 +251,30 @@
 
         .user-fields input { background: var(--bg); border: none; padding: 16px; border-radius: 14px; width: 100%; margin-bottom: 10px; color: var(--main-text); text-align: right; outline: none; font-weight: 600; }
         .submit-btn { background: #34c759; color: white; border: none; padding: 18px; border-radius: 18px; width: 100%; font-weight: 800; cursor: pointer; font-size: 1rem; }
+
+        /* واجهة وتنسيق شريط تثبيت التطبيق الذكي لنظام iOS وآيفون */
+        .ios-install-prompt {
+            position: fixed; bottom: 20px; left: 5%; width: 90%; max-width: 450px;
+            background: var(--white); color: var(--main-text); padding: 16px;
+            border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            z-index: 99999; display: none; flex-direction: column; gap: 12px;
+            border: 1px solid rgba(211, 84, 0, 0.2);
+            animation: iosPromptSlideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes iosPromptSlideUp {
+            from { transform: translateY(120%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .ios-prompt-header { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+        .ios-prompt-title { font-weight: 800; font-size: 1rem; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+        .ios-prompt-close { background: none; border: none; color: var(--desc-text); font-size: 1.2rem; cursor: pointer; font-weight: 700; padding: 0 4px; }
+        .ios-prompt-body { font-size: 0.85rem; font-weight: 700; color: var(--main-text); line-height: 1.5; text-align: right; }
+        .ios-prompt-steps { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 14px; }
+        body.dark-mode .ios-prompt-steps { background: rgba(255,255,255,0.03); }
+        .ios-step { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; font-weight: 600; }
+        .ios-icon-share { width: 22px; height: 22px; display: inline-block; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23007aff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8'/%3E%3Cpolyline points='16 6 12 2 8 6'/%3E%3Cline x1='12' y1='2' x2='12' y2='15'/%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; }
+        .ios-icon-add { width: 20px; height: 20px; display: inline-block; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231c1c1e' stroke-width='2'%3E%3Crect x='3' y='3' width='18' height='18' rx='5'/%3E%3Cline x1='12' y1='8' x2='12' y2='16'/%3E%3Cline x1='8' y1='12' x2='16' y2='12'/%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; }
+        body.dark-mode .ios-icon-add { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f2f2f7' stroke-width='2'%3E%3Crect x='3' y='3' width='18' height='18' rx='5'/%3E%3Cline x1='12' y1='8' x2='12' y2='16'/%3E%3Cline x1='8' y1='12' x2='16' y2='12'/%3E%3C/svg%3E"); }
     </style>
 </head>
 <body>
@@ -266,6 +285,28 @@
             <h2 class="loader-text">مطعم بولوفريتا</h2>
             <p class="loader-slogan">بولوفريتا.. أصل الجودة وحكاية كل طعم! ✨</p>
             <div class="loading-bar"><span id="progressBar"></span></div>
+        </div>
+    </div>
+
+    <div id="iosPrompt" class="ios-install-prompt">
+        <div class="ios-prompt-header">
+            <div class="ios-prompt-title">
+                <span style="font-size: 1.2rem;">📲</span> تثبيت منيو بولوفريتا على آيفون
+            </div>
+            <button class="ios-prompt-close" onclick="closeIosPrompt()">✕</button>
+        </div>
+        <div class="ios-prompt-body">
+            يمكنك إضافة المنيو مباشرة إلى شاشتك الرئيسية لتصفحه وطلب طعامك المفضل في أي وقت كأنه تطبيق مثبت تماماً:
+        </div>
+        <div class="ios-prompt-steps">
+            <div class="ios-step">
+                <span>1️⃣ اضغط على زر المشاركة السفلي في متصفح سفاري</span>
+                <span class="ios-icon-share"></span>
+            </div>
+            <div class="ios-step">
+                <span>2️⃣ اختر من القائمة "إضافة إلى الشاشة الرئيسية"</span>
+                <span class="ios-icon-add"></span>
+            </div>
         </div>
     </div>
 
@@ -411,16 +452,34 @@
         document.addEventListener("DOMContentLoaded", () => {
             localStorage.removeItem("selectedBranch");
             startSmartLoadingPipeline();
+            detectAndShowIosPrompt();
         });
+
+        // فحص الهاتف إذا كان آيفون وخارج وضع التثبيت الفعلي لعرض البنر الخاص بالتثبيت
+        function detectAndShowIosPrompt() {
+            const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            const hasSeenPrompt = localStorage.getItem('pwaIosPromptDismissed');
+
+            if (isIos && !isStandalone && !hasSeenPrompt) {
+                setTimeout(() => {
+                    document.getElementById('iosPrompt').style.display = 'flex';
+                }, 4000); // يظهر بذكاء وسلاسة بعد 4 ثوانٍ من استقرار التطبيق
+            }
+        }
+
+        function closeIosPrompt() {
+            document.getElementById('iosPrompt').style.style.display = 'none';
+            localStorage.setItem('pwaIosPromptDismissed', 'true');
+        }
 
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             let progress = 0;
-            const duration = 3000; // مدة التحميل الثابتة: 3 ثوانٍ كاملة
-            const intervalTime = 30; // تحديث دقة حركة الـ Bar كل 30 ملي ثانية لتكون ناعمة وسلسة
+            const duration = 3000; 
+            const intervalTime = 30; 
             const step = (intervalTime / duration) * 100;
 
-            // 1. تشغيل جلب البيانات في الخلفية فوراً بالتوازي مع أنيميشن شريط التحميل
             const dataPromise = Promise.all([
                 fetch(MENU_CSV_URL).then(res => res.text()),
                 fetch(DELIVERY_CSV_URL).then(res => res.text())
@@ -429,22 +488,19 @@
                 return ["", ""];
             });
 
-            // 2. تحريك شريط التحميل بسرعة ثابتة تماماً وخطيّة
             const progressInterval = setInterval(async () => {
                 progress += step;
                 if (progress >= 100) {
                     progress = 100;
                     bar.style.width = '100%';
-                    clearInterval(progressInterval); // إيقاف التكرار بمجرد اكتمال الـ Bar
+                    clearInterval(progressInterval);
 
-                    // ننتظر استجابة الجداول (التي انتهت بالفعل أثناء وقت تحميل الـ 3 ثوانٍ)
                     const [menuRes, deliveryRes] = await dataPromise;
 
                     if (menuRes && deliveryRes) {
                         rawMenuRows = menuRes.split(/\r?\n/).slice(1);
                         rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
-                        // تجهيز عناصر المنيو المؤقتة لعمل الـ Preload للصور كاش في المتصفح
                         const tempMenu = rawMenuRows.map(row => {
                             const col = row.split(',');
                             return { 
@@ -456,11 +512,9 @@
 
                         const tempCats = [...new Set(tempMenu.map(i => i.category))];
                         
-                        // معالجة الصور وحفظها في الـ Cache لتعمل فورياً وبدون دقيقة تأخير
                         await preloadAllImages(tempMenu, tempCats);
                     }
 
-                    // 3. الانتقال الفوري المباشر لنظام اختيار الفروع فور اكتمال الشريط
                     document.getElementById('splash-screen').classList.add('splash-hidden');
                     setTimeout(() => {
                         document.getElementById("branchModal").classList.add("show");
