@@ -49,7 +49,7 @@
         body.app-ready .category-nav { display: flex !important; }
         body.app-ready .menu-list { display: block !important; }
 
-        /* شاشة التحميل الإبداعية والجذابة الجديدة */
+        /* شاشة التحميل الإبداعية والجذابة */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--white); z-index: 9999;
@@ -59,7 +59,7 @@
         }
         .loader-content { text-align: center; }
         
-        /* أنيميشن عائم ثلاثي الأبعاد ومبتكر للوجو مع توهج نبضي */
+        /* أنيميشن عائم ثلاثي الأبعاد للوجو مع توهج نبضي */
         .loader-logo-big {
             width: 115px; height: 115px; border-radius: 28px;
             margin-bottom: 20px; object-fit: cover; 
@@ -67,7 +67,6 @@
             animation: creativeFloatGlow 3s ease-in-out infinite;
         }
         
-        /* تصغير اسم المطعم وضبط الحجم والأنيميشن */
         .loader-text { 
             font-weight: 800; color: var(--accent); font-size: 1.55rem; margin-bottom: 8px; 
             opacity: 0; transform: translateY(10px);
@@ -84,6 +83,7 @@
             opacity: 0; animation: slideUpFade 0.8s ease-out forwards 0.7s;
         }
         body.dark-mode .loading-bar { background: rgba(255,255,255,0.1); }
+        /* تغيير الـ transition ليكون خطي متوافق تماماً مع توقيت الجافاسكريبت */
         .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.03s linear; }
         
         @keyframes creativeFloatGlow {
@@ -416,11 +416,11 @@
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             let progress = 0;
-            const duration = 3000; // المدة الإجمالية للتحميل (3 ثوانٍ)
-            const intervalTime = 30; // تحديث الأنميشن كل 30 ملي ثانية لضمان النعومة المفرطة
+            const duration = 3000; // مدة التحميل الثابتة: 3 ثوانٍ كاملة
+            const intervalTime = 30; // تحديث دقة حركة الـ Bar كل 30 ملي ثانية لتكون ناعمة وسلسة
             const step = (intervalTime / duration) * 100;
 
-            // بدء جلب البيانات من الجداول في الخلفية فوراً بالتوازي مع الأنيميشن
+            // 1. تشغيل جلب البيانات في الخلفية فوراً بالتوازي مع أنيميشن شريط التحميل
             const dataPromise = Promise.all([
                 fetch(MENU_CSV_URL).then(res => res.text()),
                 fetch(DELIVERY_CSV_URL).then(res => res.text())
@@ -429,21 +429,22 @@
                 return ["", ""];
             });
 
-            // تحريك الـ Progress Bar بسرعة خطية وثابتة تماماً بدون قفزات مفاجئة
+            // 2. تحريك شريط التحميل بسرعة ثابتة تماماً وخطيّة
             const progressInterval = setInterval(async () => {
                 progress += step;
                 if (progress >= 100) {
                     progress = 100;
                     bar.style.width = '100%';
-                    clearInterval(progressInterval);
+                    clearInterval(progressInterval); // إيقاف التكرار بمجرد اكتمال الـ Bar
 
-                    // ننتظر استجابة الجداول (تكون انتهت بالفعل خلال الـ 3 ثوانٍ) ثم نقوم بمعالجتها وتحميل الصور كاش
+                    // ننتظر استجابة الجداول (التي انتهت بالفعل أثناء وقت تحميل الـ 3 ثوانٍ)
                     const [menuRes, deliveryRes] = await dataPromise;
 
                     if (menuRes && deliveryRes) {
                         rawMenuRows = menuRes.split(/\r?\n/).slice(1);
                         rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
+                        // تجهيز عناصر المنيو المؤقتة لعمل الـ Preload للصور كاش في المتصفح
                         const tempMenu = rawMenuRows.map(row => {
                             const col = row.split(',');
                             return { 
@@ -454,10 +455,12 @@
                         }).filter(i => i.name);
 
                         const tempCats = [...new Set(tempMenu.map(i => i.category))];
+                        
+                        // معالجة الصور وحفظها في الـ Cache لتعمل فورياً وبدون دقيقة تأخير
                         await preloadAllImages(tempMenu, tempCats);
                     }
 
-                    // الانتقال فوراً لشاشة اختيار الفرع بعد انتهاء الأنيميشن تماماً
+                    // 3. الانتقال الفوري المباشر لنظام اختيار الفروع فور اكتمال الشريط
                     document.getElementById('splash-screen').classList.add('splash-hidden');
                     setTimeout(() => {
                         document.getElementById("branchModal").classList.add("show");
