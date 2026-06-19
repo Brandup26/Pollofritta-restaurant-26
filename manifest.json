@@ -2,19 +2,19 @@
   "name": "مطعم بولوفريتا",
   "short_name": "بولوفريتا",
   "description": "بولوفريتا.. أصل الجودة وحكاية كل طعم!",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#d35400",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "images/llogo.jpg",
+      "src": "./images/llogo.jpg",
       "sizes": "192x192",
       "type": "image/jpeg"
     },
     {
-      "src": "images/llogo.jpg",
+      "src": "./images/llogo.jpg",
       "sizes": "512x512",
       "type": "image/jpeg"
     }

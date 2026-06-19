@@ -1,4 +1,4 @@
-const CACHE_NAME = 'polovrita-premium-v1';
+const CACHE_NAME = 'polovrita-premium-v2';
 // الملفات الأساسية التي سيتم حفظها في ذاكرة الهاتف لسرعة تصفح خارقة
 const ASSETS_TO_CACHE = [
   './',
@@ -18,7 +18,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// تفعيل السيرفس وركر وتحديث الكاش القديم تلقائياً لضمان الأمان
+// تفعيل السيرفس وركر وحذف الكاش القديم فوراً لتحديث التطبيق عند العميل
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -35,9 +35,9 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// استراتيجية التشغيل (Cache First): يعرض من الهاتف فوراً، وإذا لم يجد الملف يبحث في الإنترنت لسرعة تصفح لا مثيل لها
+// استراتيجية التشغيل السريع (Cache First) لملفات المنيو والصور
 self.addEventListener('fetch', (event) => {
-  // عدم عمل كاش لروابط جوجل شيت لضمان تحديث الأسعار والمنطقة فوراً من السيرفر
+  // استثناء روابط جوجل شيت لضمان تحديث الأسعار والمنطقة فوراً من السيرفر
   if (event.request.url.includes('docs.google.com')) {
     return fetch(event.request);
   }
@@ -49,7 +49,6 @@ self.addEventListener('fetch', (event) => {
       }
       return fetch(event.request).then((networkResponse) => {
         return caches.open(CACHE_NAME).then((cache) => {
-          // حفظ الصور والملفات الجديدة المستدعاة ديناميكياً في الكاش
           if (event.request.method === 'GET' && !event.request.url.startsWith('chrome-extension')) {
             cache.put(event.request, networkResponse.clone());
           }
@@ -57,7 +56,6 @@ self.addEventListener('fetch', (event) => {
         });
       });
     }).catch(() => {
-      // حل بديل في حال أوفلاين تماماً والصورة مش موجودة
       if (event.request.destination === 'image') {
         return caches.match('./images/llogo.jpg');
       }
