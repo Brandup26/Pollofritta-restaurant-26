@@ -416,7 +416,7 @@
 
     <script>
         // إستراتيجية تدمير الكاش التلقائي الذكي لمنع تجميد التعديلات
-        const CURRENT_APP_VERSION = "v3.0.5_live_bypass"; 
+        const CURRENT_APP_VERSION = "v3.0.6_forced_refresh"; 
         
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
@@ -431,9 +431,9 @@
             localStorage.clear(); 
             localStorage.setItem("APP_VERSION_TRACK", CURRENT_APP_VERSION);
             
-            // جلب الرابط الحالي بدون معاملات الكاش القديمة لمنع التكرار اللانهائي
-            const cleanPath = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            window.location.replace(cleanPath + '?refresh_tok=' + Date.now());
+            // جلب الرابط الحالي مع إضافة الطابع الزمني لضمان التحديث
+            const cacheBuster = Date.now();
+            window.location.replace(window.location.protocol + "//" + window.location.host + window.location.pathname + '?refresh=' + cacheBuster);
         }
     </script>
 
@@ -536,9 +536,11 @@
     </div>
 
     <script>
-        const cacheBusterToken = Date.now();
-        const MENU_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=0&single=true&output=csv&nocache=${cacheBusterToken}`;
-        const DELIVERY_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=1130664195&single=true&output=csv&nocache=${cacheBusterToken}`;
+        // دالة لتوليد طابع زمني دقيق لكل طلب fetch
+        const getCacheBuster = () => Date.now();
+        
+        const MENU_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=0&single=true&output=csv&t=${getCacheBuster()}`;
+        const DELIVERY_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=1130664195&single=true&output=csv&t=${getCacheBuster()}`;
         
         const IMAGES_PATH = "./images/"; 
         let rawMenuRows = [], rawDeliveryRows = [];
@@ -557,7 +559,7 @@
         }
 
         function getSafeImgPath(fileName) {
-            return `${IMAGES_PATH}${encodeURIComponent(fileName)}.jpg?v=3`;
+            return `${IMAGES_PATH}${encodeURIComponent(fileName)}.jpg?t=${getCacheBuster()}`;
         }
 
         function parseSheetRowData(category, rawContent, rawIngredients, col3, col4, col5, col6) {
@@ -840,7 +842,7 @@
             const uniqueCats = [...new Map(menuData.map(item => [item.category, item])).values()];
             document.getElementById('catNav').innerHTML = uniqueCats.map((cat, idx) => `
                 <div class="cat-item ${idx === 0 ? 'active' : ''}" onclick="filterCat('${cat.category}', this)">
-                    <div class="cat-img-box"><img src="${getSafeImgPath(cat.category)}" onerror="this.src='${IMAGES_PATH}llogo.jpg?v=3'"></div>
+                    <div class="cat-img-box"><img src="${getSafeImgPath(cat.category)}" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'"></div>
                     <span>${cat.category}</span>
                 </div>
             `).join('');
@@ -939,7 +941,7 @@
                     <div class="food-card">
                         <div class="image-side-container">
                             <div class="item-img-box">
-                                <img src="${item.img}" onerror="this.src='${IMAGES_PATH}llogo.jpg?v=3'">
+                                <img src="${item.img}" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'">
                             </div>
                         </div>
                         <div class="food-info">
@@ -1048,7 +1050,7 @@
                 listContainer.innerHTML = cart.map((item, idx) => `
                     <div class="cart-item-card">
                         <div class="cart-item-top">
-                            <img src="${item.img}" class="cart-item-img" onerror="this.src='${IMAGES_PATH}llogo.jpg?v=3'">
+                            <img src="${item.img}" class="cart-item-img" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'">
                             <div class="cart-item-info">
                                 <span class="cart-item-name">${item.name} (x${item.qty})</span>
                                 <span class="cart-item-price">${parseFloat(item.price) * item.qty} ج.م</span>
