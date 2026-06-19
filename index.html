@@ -49,7 +49,6 @@
         body.app-ready .category-nav { display: flex !important; }
         body.app-ready .menu-list { display: block !important; }
 
-        /* شاشة التحميل */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--white); z-index: 9999;
@@ -96,7 +95,6 @@
         
         .splash-hidden { opacity: 0 !important; pointer-events: none; visibility: hidden !important; }
 
-        /* اختيار الفرع */
         .branch-modal-backdrop {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--white); z-index: 9998;
@@ -118,7 +116,6 @@
         }
         .branch-btns button:active { transform: scale(0.97); }
 
-        /* الهيدر العلوي */
         .fixed-top-container {
             position: sticky; top: 0; z-index: 1000; width: 100%;
             display: flex; flex-direction: column; background: var(--white);
@@ -136,7 +133,6 @@
         
         .cart-trigger-container { position: absolute; left: 20px; top: 0; }
         
-        /* زر السلة العلوي */
         .cart-trigger { 
             width: 40px; height: 40px; background: var(--bg); border-radius: 12px; 
             display: flex; align-items: center; justify-content: center; position: relative; 
@@ -164,7 +160,6 @@
         .brand-addr { font-size: 0.8rem; font-weight: 700; }
         .branch-badge { background: var(--accent); color: white; padding: 3px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 800; margin-top: 3px; cursor: pointer; }
 
-        /* شريط الأقسام */
         .category-nav { 
             display: flex; overflow-x: auto; white-space: nowrap; 
             padding: 10px 24px; gap: 35px; 
@@ -178,7 +173,6 @@
         .cat-item.active .cat-img-box { border-color: var(--accent); transform: scale(1.03); }
         .cat-item span { font-size: 0.8rem; font-weight: 700; color: var(--desc-text); margin-top: 5px; text-align: center; white-space: nowrap; }
 
-        /* كارت الطعام المعدل لحل التداخل تماماً */
         .menu-list { padding: 12px; max-width: 600px; margin: auto; }
         
         .food-card { 
@@ -195,7 +189,6 @@
             position: relative; 
         }
         
-        /* حاوية الصورة الجانبية والتنبيه */
         .image-side-container {
             display: flex;
             flex-direction: column;
@@ -214,7 +207,6 @@
         }
         .item-img-box img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* التنبيه المبتكر تحت الصورة */
         .mini-success-badge {
             font-size: 11px;
             font-weight: 800;
@@ -235,7 +227,6 @@
             visibility: visible;
         }
 
-        /* حاوية البيانات المحدثة لمنع الركوب والتداخل */
         .food-info { 
             flex: 1; 
             display: flex; 
@@ -245,7 +236,6 @@
             text-align: right; 
         }
         
-        /* السطر العلوي يحوي الاسم والسعر بشكل مرن متجاوب */
         .food-title-row {
             display: flex;
             justify-content: space-between;
@@ -358,7 +348,6 @@
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
         }
 
-        /* الفوتر */
         .restaurant-footer { display: flex; flex-direction: column; gap: 12px; padding: 20px 15px; text-align: center; background: var(--white); border-top: 1px solid rgba(0,0,0,0.05); margin-top: 25px; }
         .footer-branch-phones { background: rgba(0,0,0,0.02); padding: 12px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04); text-align: center; }
         body.dark-mode .footer-branch-phones { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.04); }
@@ -370,7 +359,6 @@
         .dev-credit { font-size: 0.8rem; color: var(--desc-text); font-weight: 700; }
         .dev-credit a { color: var(--address-tag); text-decoration: none; display: block; margin-top: 2px; }
 
-        /* نافذة السلة */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: flex-end; }
         .modal-content { background: var(--white); width: 100%; max-width: 500px; padding: 20px; border-radius: 26px 26px 0 0; max-height: 92vh; overflow-y: auto; color: var(--main-text); }
         
@@ -543,6 +531,11 @@
             document.getElementById('themeBtn').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         }
 
+        // تحويل المسار العربي لـ URL آمن
+        function getSafeImgPath(fileName) {
+            return `${IMAGES_PATH}${encodeURIComponent(fileName)}.jpg`;
+        }
+
         function parseSheetRowData(category, rawContent, rawIngredients, singlePrice, doublePrice) {
             let content = rawContent ? rawContent.trim() : "";
             let ingredients = rawIngredients ? rawIngredients.trim() : "";
@@ -568,7 +561,6 @@
                 desc = "وجبة شهية ومميزة من مطعم بولوفريتا";
             }
 
-            // تهذيب وترتيب نص الوجبة الأخيرة "فريتا بيج ميل" ليصبح متناسقاً
             if (name.includes("فريتا بيج ميل") || desc.includes("11بروستد")) {
                 desc = "11 قطعة بروستد دجاج مقرمش، 11 قطعة ستربس، 3 بطاطس، 2 أرز، كولوسلو كبير، لتر غازي، 3 تومية، 12 خبز طازج.";
             }
@@ -582,34 +574,10 @@
                 desc: desc, 
                 singlePrice: (sP && sP !== "0" && sP !== "") ? sP : null,
                 doublePrice: (dP && dP !== "0" && dP !== "") ? dP : null,
-                img: `${IMAGES_PATH}${name || "صنف مميز"}.jpg` 
+                // استخدام دالة المسار الآمن
+                img: getSafeImgPath(name || "صنف مميز")
             };
         }
-
-        function preloadAllImages(itemsToPreload) {
-            return new Promise((resolve) => {
-                let loadedCount = 0;
-                const totalImages = itemsToPreload.length;
-                if (totalImages === 0) resolve();
-
-                function imageLoadedOrFailed() {
-                    loadedCount++;
-                    if (loadedCount >= totalImages) resolve();
-                }
-
-                itemsToPreload.forEach(item => {
-                    const img = new Image();
-                    img.onload = imageLoadedOrFailed;
-                    img.onerror = imageLoadedOrFailed;
-                    img.src = item.img;
-                });
-            });
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            localStorage.removeItem("selectedBranch");
-            startSmartLoadingPipeline();
-        });
 
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
@@ -626,24 +594,6 @@
 
                 rawMenuRows = menuRes.split(/\r?\n/).slice(1);
                 rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
-
-                // تجهيز مؤقت للبيانات من أجل عمل البيرلود للصور بالاسم الصحيح
-                let initialProcessedItems = [];
-                rawMenuRows.forEach(row => {
-                    if (!row || !row.trim()) return;
-                    const col = row.split(',');
-                    let category = col[0]?.trim().replace(/"/g, '').replace(/'/g, '') || "";
-                    let rawContent = col[1]?.trim().replace(/"/g, '').replace(/'/g, '') || "";
-                    let rawIngredients = col[2]?.trim().replace(/"/g, '').replace(/'/g, '') || ""; 
-                    let singlePrice = col[3]?.trim().replace(/"/g, '') || ""; 
-                    let doublePrice = col[4]?.trim().replace(/"/g, '') || ""; 
-
-                    if(category && rawContent) {
-                        initialProcessedItems.push(parseSheetRowData(category, rawContent, rawIngredients, singlePrice, doublePrice));
-                    }
-                });
-
-                await preloadAllImages(initialProcessedItems);
 
                 clearInterval(progressInterval);
                 bar.style.width = '100%';
@@ -663,6 +613,11 @@
             }
         }
 
+        document.addEventListener("DOMContentLoaded", () => {
+            localStorage.removeItem("selectedBranch");
+            startSmartLoadingPipeline();
+        });
+
         function selectBranch(branch) {
             localStorage.setItem("selectedBranch", branch);
             document.getElementById("branchModal").classList.remove("show");
@@ -679,7 +634,6 @@
                 let category = col[0]?.trim().replace(/"/g, '').replace(/'/g, '') || "";
                 let rawContent = col[1]?.trim().replace(/"/g, '').replace(/'/g, '') || "";
                 let rawIngredients = col[2]?.trim().replace(/"/g, '').replace(/'/g, '') || ""; 
-                
                 let singlePrice = col[3]?.trim().replace(/"/g, '') || ""; 
                 let doublePrice = col[4]?.trim().replace(/"/g, '') || ""; 
 
@@ -851,14 +805,11 @@
         }
 
         function renderNav() {
-            if(menuData.length === 0) {
-                document.getElementById('catNav').innerHTML = '<div style="padding:10px;color:red;font-weight:700;width:100%;text-align:center;">⚠️ لا توجد بيانات متاحة حالياً بالمنيو.</div>';
-                return;
-            }
+            if(menuData.length === 0) return;
             const uniqueCats = [...new Map(menuData.map(item => [item.category, item])).values()];
             document.getElementById('catNav').innerHTML = uniqueCats.map((cat, idx) => `
                 <div class="cat-item ${idx === 0 ? 'active' : ''}" onclick="filterCat('${cat.category}', this)">
-                    <div class="cat-img-box"><img src="${IMAGES_PATH}${cat.category}.jpg" onerror="this.src='${IMAGES_PATH}llogo.jpg'"></div>
+                    <div class="cat-img-box"><img src="${getSafeImgPath(cat.category)}" onerror="this.src='${IMAGES_PATH}llogo.jpg'"></div>
                     <span>${cat.category}</span>
                 </div>
             `).join('');
@@ -898,9 +849,8 @@
                     defaultPrice = item.doublePrice;
                 }
                 
-                if(!selectedSizesState[globalIndex]) {
-                    selectedSizesState[globalIndex] = defaultSize;
-                } else {
+                if(!selectedSizesState[globalIndex]) selectedSizesState[globalIndex] = defaultSize;
+                else {
                     defaultSize = selectedSizesState[globalIndex];
                     defaultPrice = defaultSize === "S" ? (item.singlePrice || item.doublePrice) : (item.doublePrice || item.singlePrice);
                 }
@@ -923,19 +873,14 @@
                             </div>
                             <div class="mini-success-badge" id="${uniqueSuccessId}">تمت الإضافة! ✅</div>
                         </div>
-
                         <div class="food-info">
                             <div class="food-title-row">
                                 <span class="food-name">${item.name}</span>
                                 <span class="food-price" id="price-label-${globalIndex}">${defaultPrice} ج.م</span>
                             </div>
-                            
                             <span class="food-desc">${item.desc}</span>
-                            
                             ${sizeSelectorHtml}
-                            
-                            <input type="text" id="${uniqueInputId}" class="item-note-input-menu" placeholder="📝 ملاحظاتك (بدون مخلل، زيادة صوص...)">
-                            
+                            <input type="text" id="${uniqueInputId}" class="item-note-input-menu" placeholder="📝 ملاحظاتك...">
                             <div class="action-row">
                                 <button class="add-btn" onclick="addToCartDirect(event, this, ${globalIndex}, '${uniqueInputId}', '${uniqueSuccessId}')">إضافة للسلة 🛒</button>
                             </div>
@@ -947,56 +892,28 @@
 
         function addToCartDirect(e, btn, globalIndex, inputId, successId) {
             e.stopPropagation();
-            
             const noteInput = document.getElementById(inputId);
             const noteValue = noteInput ? noteInput.value.trim() : "";
             const item = menuData[globalIndex];
-            
             const chosenSize = selectedSizesState[globalIndex] || "S";
             const chosenPrice = chosenSize === "S" ? (item.singlePrice || item.doublePrice) : (item.doublePrice || item.singlePrice);
-            const sizeLabelText = (item.singlePrice && item.doublePrice) ? ` (${chosenSize})` : "";
-            const finalCartName = `${item.name}${sizeLabelText}`;
+            const finalCartName = `${item.name}${(item.singlePrice && item.doublePrice) ? ' ('+chosenSize+')' : ""}`;
             
             const existing = cart.find(c => c.name === finalCartName && c.note === noteValue);
-            if (existing) { 
-                existing.qty += 1; 
-            } else { 
-                cart.push({name: finalCartName, price: chosenPrice, img: item.img, qty: 1, note: noteValue}); 
-            }
+            if (existing) existing.qty += 1; 
+            else cart.push({name: finalCartName, price: chosenPrice, img: item.img, qty: 1, note: noteValue}); 
             
-            // 1. تشغيل التنبيه تحت الصورة مباشرة
             const miniToast = document.getElementById(successId);
             if(miniToast) {
                 miniToast.classList.add('show-toast');
-                setTimeout(() => {
-                    miniToast.classList.remove('show-toast');
-                }, 1300);
+                setTimeout(() => miniToast.classList.remove('show-toast'), 1300);
             }
 
-            // 2. أنميشن اهتزاز السلة العلوية كلياً
             const cartBtnEl = document.getElementById('cartBtn');
             if(cartBtnEl) {
                 cartBtnEl.classList.add('cart-glow-success', 'shake-cart');
-                setTimeout(() => {
-                    cartBtnEl.classList.remove('cart-glow-success', 'shake-cart');
-                }, 1200);
-
-                // 3. أنميشن الطيران الإبداعي للهامبرغر
-                const fly = document.createElement('div');
-                fly.className = 'fly-item'; fly.innerHTML = '🍔';
-                fly.style.left = e.clientX + 'px'; fly.style.top = e.clientY + 'px';
-                document.body.appendChild(fly);
-
-                const cartPos = cartBtnEl.getBoundingClientRect();
-                setTimeout(() => {
-                    fly.style.left = (cartPos.left + 12) + 'px'; 
-                    fly.style.top = (cartPos.top + 12) + 'px';
-                    fly.style.transform = 'scale(0.2)'; 
-                    fly.style.opacity = '0';
-                }, 20);
-                setTimeout(() => { fly.remove(); }, 500);
+                setTimeout(() => cartBtnEl.classList.remove('cart-glow-success', 'shake-cart'), 1200);
             }
-
             if(noteInput) noteInput.value = "";
             updateCart();
         }
@@ -1004,10 +921,7 @@
         function updateCart() {
             const totalItemsCount = cart.reduce((acc, curr) => acc + curr.qty, 0);
             const badge = document.getElementById('cartBadge');
-            if(badge) {
-                badge.innerText = totalItemsCount; 
-                badge.classList.toggle('show', totalItemsCount > 0);
-            }
+            if(badge) { badge.innerText = totalItemsCount; badge.classList.toggle('show', totalItemsCount > 0); }
             
             const listContainer = document.getElementById('cartItemsList');
             if(listContainer) {
@@ -1025,13 +939,11 @@
                     </div>
                 `).join('');
             }
-            
             updateCartTotals();
         }
 
         function updateCartTotals() {
             currentFoodTotal = cart.reduce((acc, curr) => acc + (parseFloat(curr.price) * curr.qty), 0);
-            
             const foodTotalEl = document.getElementById('foodTotalAmount');
             const deliveryTotalEl = document.getElementById('deliveryTotalAmount');
             const grandTotalEl = document.getElementById('grandTotalAmount');
@@ -1042,7 +954,7 @@
         }
 
         function removeFromCart(idx) {
-            if (cart[idx].qty > 1) { cart[idx].qty -= 1; } else { cart.splice(idx, 1); }
+            if (cart[idx].qty > 1) cart[idx].qty -= 1; else cart.splice(idx, 1);
             updateCart();
             if(cart.length === 0) toggleCart(false);
         }
@@ -1052,64 +964,23 @@
             if(!modal) return;
             if (show) {
                 modal.style.display = 'flex';
-                history.pushState({ cartOpen: true }, "");
                 setOrderType(currentOrderType); 
-                updateCartTotals();
-            } else {
-                modal.style.display = 'none';
-            }
+            } else modal.style.display = 'none';
         }
-
-        window.addEventListener('popstate', function (event) {
-            const modal = document.getElementById('cartModal');
-            if (modal && modal.style.display === 'flex') { 
-                modal.style.display = 'none'; 
-            }
-        });
 
         function sendToWA() {
             const n = document.getElementById('uName').value, p = document.getElementById('uPhone').value, a = document.getElementById('uAddr').value;
-            
-            if(cart.length === 0) return alert("سلتك فارغة، يرجى إضافة عناصر أولاً");
-            if(!n || !p) return alert("يرجى إكمال البيانات الأساسية (الاسم ورقم الموبايل)");
-            
-            if(currentOrderType === 'delivery') {
-                if(!selectedRegionName) return alert("من فضلك حدد منطقة التوصيل من القائمة لحساب الشحن");
-                if(!a) return alert("يرجى كتابة العنوان بالتفصيل للتوصيل");
-            }
+            if(cart.length === 0) return alert("سلتك فارغة");
+            if(!n || !p) return alert("يرجى إكمال البيانات");
+            if(currentOrderType === 'delivery' && (!selectedRegionName || !a)) return alert("يرجى تحديد منطقة التوصيل وكتابة العنوان");
             
             const selectedBranchKey = localStorage.getItem("selectedBranch"); 
             const branchText = selectedBranchKey === "damanhour" ? "دمنهور" : "أبو حمص";
-            const orderTypeText = currentOrderType === "delivery" ? "🛵 دليفري (توصيل)" : "🛍️ تيك أواي\n(من المطعم)";
-
-            let msg = `طلب جديد - مطعم بولوفريتا 🍔\n`;
-            msg += `📍 فرع: ${branchText}\n`;
-            msg += `📦 نوع الطلب: ${orderTypeText}\n`;
-            msg += `👤 الاسم: ${n}\n`;
-            msg += `📱 الموبايل: ${p}\n`;
-            
-            if(currentOrderType === 'delivery') {
-                msg += `📍 منطقة الشحن: ${selectedRegionName}\n`;
-                msg += `🏠 العنوان بالتفصيل: ${a}\n`;
-            }
-            
-            msg += `\n📋 الطلبات:\n`;
-            
-            msg += cart.map(i => {
-                let itemStr = `- ${i.name} (العدد: ${i.qty})`;
-                if(i.note) { itemStr += ` [⚠️ ملاحظة: ${i.note}]`; }
-                itemStr += ` -> ${parseFloat(i.price) * i.qty} ج.م`;
-                return itemStr;
-            }).join('\n');
-
-            msg += `\n\n💵 حساب الطعام: ${currentFoodTotal} ج.م\n`;
-            if(currentOrderType === 'delivery') {
-                msg += `🛵 تكلفة التوصيل: ${currentDeliveryFee} ج.م\n`;
-            }
-            msg += `💰 الإجمالي الكلي: ${currentFoodTotal + currentDeliveryFee} ج.م`;
-            
-            const targetWhatsAppNumber = BRANCH_WHATSAPP[selectedBranchKey] || "201070033732";
-            window.open(`https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent(msg)}`);
+            let msg = `طلب جديد - مطعم بولوفريتا 🍔\n📍 فرع: ${branchText}\n📦 نوع الطلب: ${currentOrderType === "delivery" ? "🛵 دليفري" : "🛍️ تيك أواي"}\n👤 الاسم: ${n}\n📱 الموبايل: ${p}\n`;
+            if(currentOrderType === 'delivery') msg += `📍 منطقة الشحن: ${selectedRegionName}\n🏠 العنوان بالتفصيل: ${a}\n`;
+            msg += `\n📋 الطلبات:\n` + cart.map(i => `- ${i.name} (x${i.qty})${i.note ? ' [ملاحظة: '+i.note+']' : ''} -> ${parseFloat(i.price) * i.qty} ج.م`).join('\n');
+            msg += `\n\n💵 الحساب: ${currentFoodTotal + currentDeliveryFee} ج.م`;
+            window.open(`https://wa.me/${BRANCH_WHATSAPP[selectedBranchKey] || "201070033732"}?text=${encodeURIComponent(msg)}`);
         }
     </script>
 </body>
