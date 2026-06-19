@@ -415,6 +415,16 @@
 </head>
 <body>
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw-pwa.js')
+                .then(reg => console.log('Polovrita App Premium PWA Ready!', reg))
+                .catch(err => console.log('PWA Setup Error', err));
+            });
+        }
+    </script>
+
     <div id="splash-screen">
         <div class="loader-content">
             <img src="./images/llogo.jpg" class="loader-logo-big">
@@ -572,14 +582,14 @@
                 desc: desc, 
                 singlePrice: (sP && sP !== "0" && sP !== "") ? sP : null,
                 doublePrice: (dP && dP !== "0" && dP !== "") ? dP : null,
-                img: `${IMAGES_PATH}${category}.jpg` 
+                img: `${IMAGES_PATH}${name || "صنف مميز"}.jpg` 
             };
         }
 
-        function preloadAllImages(uniqueCats) {
+        function preloadAllImages(itemsToPreload) {
             return new Promise((resolve) => {
                 let loadedCount = 0;
-                const totalImages = uniqueCats.length;
+                const totalImages = itemsToPreload.length;
                 if (totalImages === 0) resolve();
 
                 function imageLoadedOrFailed() {
@@ -587,11 +597,11 @@
                     if (loadedCount >= totalImages) resolve();
                 }
 
-                uniqueCats.forEach(cat => {
+                itemsToPreload.forEach(item => {
                     const img = new Image();
                     img.onload = imageLoadedOrFailed;
                     img.onerror = imageLoadedOrFailed;
-                    img.src = `${IMAGES_PATH}${cat}.jpg`;
+                    img.src = item.img;
                 });
             });
         }
@@ -617,12 +627,23 @@
                 rawMenuRows = menuRes.split(/\r?\n/).slice(1);
                 rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
-                const tempCats = [...new Set(rawMenuRows.map(row => {
+                // تجهيز مؤقت للبيانات من أجل عمل البيرلود للصور بالاسم الصحيح
+                let initialProcessedItems = [];
+                rawMenuRows.forEach(row => {
+                    if (!row || !row.trim()) return;
                     const col = row.split(',');
-                    return col[0]?.trim().replace(/"/g, '').replace(/'/g, '');
-                }).filter(Boolean))];
+                    let category = col[0]?.trim().replace(/"/g, '').replace(/'/g, '') || "";
+                    let rawContent = col[1]?.trim().replace(/"/g, '').replace(/'/g, '') || "";
+                    let rawIngredients = col[2]?.trim().replace(/"/g, '').replace(/'/g, '') || ""; 
+                    let singlePrice = col[3]?.trim().replace(/"/g, '') || ""; 
+                    let doublePrice = col[4]?.trim().replace(/"/g, '') || ""; 
 
-                await preloadAllImages(tempCats);
+                    if(category && rawContent) {
+                        initialProcessedItems.push(parseSheetRowData(category, rawContent, rawIngredients, singlePrice, doublePrice));
+                    }
+                });
+
+                await preloadAllImages(initialProcessedItems);
 
                 clearInterval(progressInterval);
                 bar.style.width = '100%';
