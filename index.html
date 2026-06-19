@@ -95,15 +95,16 @@
 
         .branch-modal-backdrop {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--white); z-index: 9998;
+            background: rgba(0,0,0,0.4); z-index: 9998;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; visibility: hidden; transition: opacity 0.4s ease;
+            backdrop-filter: blur(8px);
         }
         .branch-modal-backdrop.show { opacity: 1; visibility: visible; }
         
         .branch-modal-card {
             background: var(--white); padding: 35px 25px; border-radius: 30px; text-align: center; max-width: 400px; width: 88%;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
         }
         
         .branch-modal-card h3 { margin-bottom: 12px; color: var(--accent); font-weight: 800; font-size: 1.6rem; }
@@ -267,7 +268,6 @@
             margin: 2px 0 4px 0;
         }
 
-        /* حاوية المقاسات تضمن بقاء الاختيارات الأربعة في صف واحد تماماً */
         .size-selector-container {
             display: flex;
             flex-direction: row;
@@ -411,13 +411,22 @@
 <body>
 
     <script>
-        // إجبار المتصفح على تدمير ومسح أي Service Workerเก่า المخزن كاش لضمان جلب التعديل الجديد فوراً
+        // إستراتيجية تدمير الكاش الصلب والـ Service Worker لكسر أي كود قديم معلق في المتصفح تلقائياً
+        const CURRENT_APP_VERSION = "v2.5.9_bypass"; 
+        
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
                 for(let registration of registrations) {
                     registration.unregister();
                 }
             });
+        }
+
+        // إذا رصد المتصفح نسخة تطبيق قديمة مسجلة، يقوم بتصفير الكاش وعمل إعادة تحميل صلبة فورية
+        if (localStorage.getItem("APP_VERSION_TRACK") !== CURRENT_APP_VERSION) {
+            localStorage.clear(); // تصفير كاش التخزين تماماً لتدمير البيانات القديمة
+            localStorage.setItem("APP_VERSION_TRACK", CURRENT_APP_VERSION);
+            window.location.reload(true); // إعادة تحميل صلبة من السيرفر مباشرة
         }
     </script>
 
@@ -520,8 +529,10 @@
     </div>
 
     <script>
-        const MENU_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=0&single=true&output=csv';
-        const DELIVERY_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=1130664195&single=true&output=csv';
+        // تدمير فوري لكاش روابط جينيريت الـ CSV عبر الـ Cache Busting لضمان سحب داتا جوجل شيت حية
+        const cacheBusterToken = Date.now();
+        const MENU_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=0&single=true&output=csv&nocache=${cacheBusterToken}`;
+        const DELIVERY_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=1130664195&single=true&output=csv&nocache=${cacheBusterToken}`;
         
         const IMAGES_PATH = "./images/"; 
         let rawMenuRows = [], rawDeliveryRows = [];
@@ -619,8 +630,6 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            // مسح الكاش الإجباري للفرع عند كل تحديث لمنع ثبات البيانات القديمة
-            localStorage.removeItem("selectedBranch");
             startSmartLoadingPipeline();
             
             window.addEventListener('popstate', (event) => {
@@ -633,7 +642,8 @@
 
         function selectBranch(branch) {
             localStorage.setItem("selectedBranch", branch);
-            document.getElementById("branchModal").remove();
+            document.getElementById("branchModal").classList.remove("show");
+            setTimeout(() => { document.getElementById("branchModal").remove(); }, 400);
             document.body.classList.add("app-ready");
             
             updateDynamicAddressArea(branch);
