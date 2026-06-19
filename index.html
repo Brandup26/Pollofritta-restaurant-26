@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بولوفريتا | المنيو الرسمي</title>
     
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="بولوفريتا">
@@ -411,8 +415,8 @@
 <body>
 
     <script>
-        // إستراتيجية تدمير الكاش الصلب والـ Service Worker لكسر أي كود قديم معلق في المتصفح تلقائياً
-        const CURRENT_APP_VERSION = "v2.5.9_bypass"; 
+        // إستراتيجية تدمير جذري للكاش والـ Service Worker لكسر الكود القديم المعلق تلقائياً لجميع المستخدمين
+        const CURRENT_APP_VERSION = "v3.0.1_force_update"; 
         
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
@@ -422,17 +426,18 @@
             });
         }
 
-        // إذا رصد المتصفح نسخة تطبيق قديمة مسجلة، يقوم بتصفير الكاش وعمل إعادة تحميل صلبة فورية
+        // إجبار المتصفح على تصفير localStorage بالكامل وإعادة تحميل حية لو رصد نسخة قديمة
         if (localStorage.getItem("APP_VERSION_TRACK") !== CURRENT_APP_VERSION) {
-            localStorage.clear(); // تصفير كاش التخزين تماماً لتدمير البيانات القديمة
+            localStorage.clear(); 
             localStorage.setItem("APP_VERSION_TRACK", CURRENT_APP_VERSION);
-            window.location.reload(true); // إعادة تحميل صلبة من السيرفر مباشرة
+            // إضافة مَعلم تدمير كاش فريد للرابط لكسر كاش خوادم Edge/Vercel عند العميل
+            window.location.href = window.location.pathname + '?cache_flush=' + Date.now();
         }
     </script>
 
     <div id="splash-screen">
         <div class="loader-content">
-            <img src="./images/llogo.jpg" class="loader-logo-big">
+            <img src="./images/llogo.jpg?v=3" class="loader-logo-big">
             <h2 class="loader-text">مطعم بولوفريتا</h2>
             <p class="loader-slogan">بولوفريتا.. أصل الجودة وحكاية كل طعم! ✨</p>
             <div class="loading-bar"><span id="progressBar"></span></div>
@@ -455,7 +460,7 @@
             <div class="header-top">
                 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
                 <div class="header-logo-container">
-                    <img src="./images/llogo.jpg" class="header-logo">
+                    <img src="./images/llogo.jpg?v=3" class="header-logo">
                 </div>
                 <div class="cart-trigger-container">
                     <div class="cart-trigger" onclick="toggleCart(true)" id="cartBtn">
@@ -529,7 +534,7 @@
     </div>
 
     <script>
-        // تدمير فوري لكاش روابط جينيريت الـ CSV عبر الـ Cache Busting لضمان سحب داتا جوجل شيت حية
+        // دمج توكن الوقت الحقيقي لكسر كاش سحب البيانات تماماً من Google Sheets
         const cacheBusterToken = Date.now();
         const MENU_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=0&single=true&output=csv&nocache=${cacheBusterToken}`;
         const DELIVERY_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=1130664195&single=true&output=csv&nocache=${cacheBusterToken}`;
@@ -550,8 +555,9 @@
             document.getElementById('themeBtn').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         }
 
+        // كسر كاش الصور برمز فرعي مصاحب لاسم الوجبة
         function getSafeImgPath(fileName) {
-            return `${IMAGES_PATH}${encodeURIComponent(fileName)}.jpg`;
+            return `${IMAGES_PATH}${encodeURIComponent(fileName)}.jpg?v=3`;
         }
 
         function parseSheetRowData(category, rawContent, rawIngredients, col3, col4, col5, col6) {
@@ -834,7 +840,7 @@
             const uniqueCats = [...new Map(menuData.map(item => [item.category, item])).values()];
             document.getElementById('catNav').innerHTML = uniqueCats.map((cat, idx) => `
                 <div class="cat-item ${idx === 0 ? 'active' : ''}" onclick="filterCat('${cat.category}', this)">
-                    <div class="cat-img-box"><img src="${getSafeImgPath(cat.category)}" onerror="this.src='${IMAGES_PATH}llogo.jpg'"></div>
+                    <div class="cat-img-box"><img src="${getSafeImgPath(cat.category)}" onerror="this.src='${IMAGES_PATH}llogo.jpg?v=3'"></div>
                     <span>${cat.category}</span>
                 </div>
             `).join('');
@@ -869,6 +875,7 @@
                 let defaultSize = "";
                 let defaultPrice = "0";
 
+                // الحجم والأقسام تظهر بالإنجليزي الحصري (S, M, L, D, S&ch, D&ch)
                 if (cat.includes("سماش برجر")) {
                     const sizes = [
                         { label: 'S', price: item.col3 },
@@ -933,7 +940,7 @@
                     <div class="food-card">
                         <div class="image-side-container">
                             <div class="item-img-box">
-                                <img src="${item.img}" onerror="this.src='${IMAGES_PATH}llogo.jpg'">
+                                <img src="${item.img}" onerror="this.src='${IMAGES_PATH}llogo.jpg?v=3'">
                             </div>
                         </div>
                         <div class="food-info">
@@ -1042,7 +1049,7 @@
                 listContainer.innerHTML = cart.map((item, idx) => `
                     <div class="cart-item-card">
                         <div class="cart-item-top">
-                            <img src="${item.img}" class="cart-item-img" onerror="this.src='${IMAGES_PATH}llogo.jpg'">
+                            <img src="${item.img}" class="cart-item-img" onerror="this.src='${IMAGES_PATH}llogo.jpg?v=3'">
                             <div class="cart-item-info">
                                 <span class="cart-item-name">${item.name} (x${item.qty})</span>
                                 <span class="cart-item-price">${parseFloat(item.price) * item.qty} ج.م</span>
