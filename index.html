@@ -415,8 +415,8 @@
 <body>
 
     <script>
-        // إستراتيجية تدمير جذري للكاش والـ Service Worker لكسر الكود القديم المعلق تلقائياً لجميع المستخدمين
-        const CURRENT_APP_VERSION = "v3.0.1_force_update"; 
+        // إستراتيجية تدمير الكاش التلقائي الذكي لمنع تجميد التعديلات
+        const CURRENT_APP_VERSION = "v3.0.5_live_bypass"; 
         
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
@@ -426,12 +426,14 @@
             });
         }
 
-        // إجبار المتصفح على تصفير localStorage بالكامل وإعادة تحميل حية لو رصد نسخة قديمة
+        // فحص الإصدار وإجبار المتصفح على كسر الكاش بإضافة المعلمة الفريدة تلقائياً
         if (localStorage.getItem("APP_VERSION_TRACK") !== CURRENT_APP_VERSION) {
             localStorage.clear(); 
             localStorage.setItem("APP_VERSION_TRACK", CURRENT_APP_VERSION);
-            // إضافة مَعلم تدمير كاش فريد للرابط لكسر كاش خوادم Edge/Vercel عند العميل
-            window.location.href = window.location.pathname + '?cache_flush=' + Date.now();
+            
+            // جلب الرابط الحالي بدون معاملات الكاش القديمة لمنع التكرار اللانهائي
+            const cleanPath = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.location.replace(cleanPath + '?refresh_tok=' + Date.now());
         }
     </script>
 
@@ -534,7 +536,6 @@
     </div>
 
     <script>
-        // دمج توكن الوقت الحقيقي لكسر كاش سحب البيانات تماماً من Google Sheets
         const cacheBusterToken = Date.now();
         const MENU_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=0&single=true&output=csv&nocache=${cacheBusterToken}`;
         const DELIVERY_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=1130664195&single=true&output=csv&nocache=${cacheBusterToken}`;
@@ -555,7 +556,6 @@
             document.getElementById('themeBtn').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         }
 
-        // كسر كاش الصور برمز فرعي مصاحب لاسم الوجبة
         function getSafeImgPath(fileName) {
             return `${IMAGES_PATH}${encodeURIComponent(fileName)}.jpg?v=3`;
         }
@@ -875,7 +875,6 @@
                 let defaultSize = "";
                 let defaultPrice = "0";
 
-                // الحجم والأقسام تظهر بالإنجليزي الحصري (S, M, L, D, S&ch, D&ch)
                 if (cat.includes("سماش برجر")) {
                     const sizes = [
                         { label: 'S', price: item.col3 },
