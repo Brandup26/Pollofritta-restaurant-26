@@ -2,22 +2,22 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بولوفريتا | المنيو الرسمي</title>
     
     <link class="js-manifest" rel="manifest" href="manifest.json">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="بولوفريتا">
     <link rel="apple-touch-icon" href="images/llogo.jpg">
     
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #e0e0e5; 
             --main-text: #1c1c1e;
-            --desc-text: #636366;
+            --desc-text: #6b7280; 
             --accent: #d35400;
             --address-tag: #ff9500; 
             --white: #f2f2f7; 
@@ -29,14 +29,14 @@
         body.dark-mode {
             --bg: #121212;
             --main-text: #f2f2f7;
-            --desc-text: #aeaeb2;
+            --desc-text: #9ca3af; 
             --white: #1c1c1e;
             --glass: rgba(28, 28, 30, 0.85);
             --header-bg: #1c1c1e;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; transition: background 0.3s, color 0.3s; }
-        body { background-color: var(--bg); color: var(--main-text); line-height: 1.6; overflow-x: hidden; padding-top: max(0px, env(safe-area-inset-top)); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--main-text); line-height: 1.5; overflow-x: hidden; }
 
         header, .category-nav, .menu-list, footer { display: none !important; }
         
@@ -49,44 +49,45 @@
         body.app-ready .category-nav { display: flex !important; }
         body.app-ready .menu-list { display: block !important; }
 
+        /* شاشة التحميل */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--white); z-index: 9999;
             display: flex; justify-content: center; align-items: center;
-            transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: opacity 0.4s ease;
             opacity: 1; visibility: visible;
         }
         .loader-content { text-align: center; }
         
         .loader-logo-big {
-            width: 140px; height: 140px; border-radius: 32px;
+            width: 110px; height: 110px; border-radius: 28px;
             margin-bottom: 20px; object-fit: cover; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.15);
             animation: creativeFloatGlow 3s ease-in-out infinite;
         }
         
         .loader-text { 
-            font-weight: 800; color: var(--accent); font-size: 1.55rem; margin-bottom: 8px; 
+            font-weight: 800; color: var(--accent); font-size: 1.5rem; margin-bottom: 8px; 
             opacity: 0; transform: translateY(10px);
-            animation: slideUpFade 0.8s ease-out forwards 0.3s;
+            animation: slideUpFade 0.6s ease-out forwards 0.2s;
         }
         .loader-slogan { 
-            font-size: 0.95rem; color: var(--desc-text); font-weight: 600; 
+            font-size: 0.9rem; color: var(--desc-text); font-weight: 600; 
             opacity: 0; transform: translateY(10px);
-            animation: slideUpFade 0.8s ease-out forwards 0.5s;
+            animation: slideUpFade 0.6s ease-out forwards 0.4s;
         }
         
         .loading-bar { 
-            width: 150px; height: 5px; background: rgba(0,0,0,0.06); margin: 25px auto 0; border-radius: 10px; overflow: hidden; position: relative; 
-            opacity: 0; animation: slideUpFade 0.8s ease-out forwards 0.7s;
+            width: 140px; height: 5px; background: rgba(0,0,0,0.06); margin: 25px auto 0; border-radius: 10px; overflow: hidden; position: relative; 
+            opacity: 0; animation: slideUpFade 0.6s ease-out forwards 0.5s;
         }
         body.dark-mode .loading-bar { background: rgba(255,255,255,0.1); }
-        .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.03s linear; }
+        .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.4s ease; }
         
         @keyframes creativeFloatGlow {
-            0% { transform: translateY(0) scale(1); box-shadow: 0 15px 30px rgba(211, 84, 0, 0.15); }
-            50% { transform: translateY(-12px) scale(1.04); box-shadow: 0 25px 45px rgba(211, 84, 0, 0.35); }
-            100% { transform: translateY(0) scale(1); box-shadow: 0 15px 30px rgba(211, 84, 0, 0.15); }
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
         }
         
         @keyframes slideUpFade {
@@ -95,6 +96,7 @@
         
         .splash-hidden { opacity: 0 !important; pointer-events: none; visibility: hidden !important; }
 
+        /* اختيار الفرع */
         .branch-modal-backdrop {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--white); z-index: 9998;
@@ -104,23 +106,23 @@
         .branch-modal-backdrop.show { opacity: 1; visibility: visible; }
         
         .branch-modal-card {
-            background: var(--white); padding: 40px 30px; border-radius: 30px; text-align: center; max-width: 400px; width: 88%;
+            background: var(--white); padding: 35px 25px; border-radius: 30px; text-align: center; max-width: 400px; width: 88%;
             box-shadow: 0 20px 50px rgba(0,0,0,0.05);
         }
         
-        .branch-modal-card h3 { margin-bottom: 12px; color: var(--accent); font-weight: 800; font-size: 1.7rem; }
-        .branch-modal-card p { margin-bottom: 30px; color: var(--desc-text); font-size: 1rem; font-weight: 600; }
-        .branch-btns { display: flex; flex-direction: column; gap: 15px; width: 100%; }
+        .branch-modal-card h3 { margin-bottom: 12px; color: var(--accent); font-weight: 800; font-size: 1.6rem; }
+        .branch-modal-card p { margin-bottom: 25px; color: var(--desc-text); font-size: 0.95rem; font-weight: 600; }
+        .branch-btns { display: flex; flex-direction: column; gap: 12px; width: 100%; }
         .branch-btns button {
-            background: var(--accent); color: white; border: none; padding: 16px; border-radius: 18px; font-weight: 800; font-size: 1.1rem; width: 100%; cursor: pointer; transition: transform 0.2s;
+            background: var(--accent); color: white; border: none; padding: 15px; border-radius: 18px; font-weight: 800; font-size: 1.05rem; width: 100%; cursor: pointer; transition: transform 0.2s;
         }
         .branch-btns button:active { transform: scale(0.97); }
 
+        /* الهيدر العلوي */
         .fixed-top-container {
             position: sticky; top: 0; z-index: 1000; width: 100%;
             display: flex; flex-direction: column; background: var(--white);
             box-shadow: 0 3px 15px rgba(0,0,0,0.06);
-            padding-top: max(0px, env(safe-area-inset-top));
         }
 
         header { 
@@ -128,153 +130,287 @@
             padding: 8px 0 4px 0; background: var(--white);
         }
         .header-top { width: 100%; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 4px; }
+        .header-logo-container { width: 80px; height: 80px; border-radius: 22px; background: white; padding: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); overflow: hidden; }
+        .header-logo { width: 100%; height: 100%; border-radius: 18px; object-fit: cover; }
+        .theme-toggle { position: absolute; right: 20px; top: 0; width: 40px; height: 40px; background: var(--bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; color: var(--main-text); font-size: 1.1rem; }
         
-        /* تكبير حاوية اللوجو الدائرية في الهيدر الرئيسي لتناسب الهوية الفخمة */
-        .header-logo-container { width: 105px; height: 105px; border-radius: 26px; background: white; padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; }
-        .header-logo { width: 100%; height: 100%; border-radius: 22px; object-fit: cover; }
+        .cart-trigger-container { position: absolute; left: 20px; top: 0; }
         
-        .theme-toggle { position: absolute; right: 20px; top: 12px; width: 42px; height: 42px; background: var(--bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; color: var(--main-text); font-size: 1.1rem; }
-        
-        .cart-trigger-container { position: absolute; left: 20px; top: 12px; }
-        .cart-trigger { width: 42px; height: 42px; background: var(--bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        
-        @keyframes cartShakeJump {
-            0% { transform: scale(1) translateY(0); }
-            25% { transform: scale(1.25) translateY(-8px) rotate(-10deg); }
-            50% { transform: scale(1.2) translateY(-4px) rotate(10deg); }
-            75% { transform: scale(1.15) translateY(-2px) rotate(-5deg); }
-            100% { transform: scale(1) translateY(0) rotate(0); }
+        /* زر السلة العلوي */
+        .cart-trigger { 
+            width: 40px; height: 40px; background: var(--bg); border-radius: 12px; 
+            display: flex; align-items: center; justify-content: center; position: relative; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .shake-cart { animation: cartShakeJump 0.5s ease-in-out; }
         
-        .badge { position: absolute; top: -5px; right: -5px; background: #ff3b30; color: white; font-size: 10px; font-weight: 800; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; transform: scale(0); transition: 0.3s; }
+        .cart-trigger.cart-glow-success {
+            background: #34c759 !important;
+            box-shadow: 0 0 18px #34c759;
+        }
+        
+        @keyframes cartPopBounce {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.25); rotation: -10deg; }
+            60% { transform: scale(0.9); rotation: 10deg; }
+            100% { transform: scale(1); }
+        }
+        .shake-cart { animation: cartPopBounce 0.4s ease; }
+        
+        .badge { position: absolute; top: -5px; right: -5px; background: #ff3b30; color: white; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; transform: scale(0); transition: 0.2s; }
         .badge.show { transform: scale(1); }
         
         .header-bottom-addr { text-align: center; width: 100%; padding: 4px 15px; border-top: 0.5px solid rgba(0,0,0,0.03); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: var(--white); }
-        .addr-tag { color: var(--address-tag); font-weight: 800; font-size: 0.95rem; }
-        .brand-addr { font-size: 0.85rem; font-weight: 700; }
-        .branch-badge { background: var(--accent); color: white; padding: 3px 10px; border-radius: 10px; font-size: 0.72rem; font-weight: 800; margin-top: 3px; cursor: pointer; }
+        .addr-tag { color: var(--address-tag); font-weight: 800; font-size: 0.9rem; }
+        .brand-addr { font-size: 0.8rem; font-weight: 700; }
+        .branch-badge { background: var(--accent); color: white; padding: 3px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 800; margin-top: 3px; cursor: pointer; }
 
+        /* شريط الأقسام */
         .category-nav { 
             display: flex; overflow-x: auto; white-space: nowrap; 
-            padding: 12px 20px; gap: 28px; 
+            padding: 10px 24px; gap: 35px; 
             scrollbar-width: none; background: var(--glass); backdrop-filter: blur(20px); 
             border-top: 0.5px solid rgba(0,0,0,0.03); border-bottom: 0.5px solid rgba(0,0,0,0.08); 
         }
         .category-nav::-webkit-scrollbar { display: none; }
-        .cat-item { display: flex; flex-direction: column; align-items: center; min-width: 100px; cursor: pointer; }
-        .cat-img-box { width: 56px; height: 56px; border-radius: 16px; background: #e5e5ea; overflow: hidden; border: 2.5px solid transparent; transition: 0.3s; }
+        .cat-item { display: flex; flex-direction: column; align-items: center; min-width: 105px; cursor: pointer; }
+        .cat-img-box { width: 52px; height: 52px; border-radius: 16px; background: #e5e5ea; overflow: hidden; border: 2.5px solid transparent; }
         .cat-img-box img { width: 100%; height: 100%; object-fit: cover; }
-        .cat-item.active .cat-img-box { border-color: var(--accent); transform: scale(1.05); }
-        .cat-item span { font-size: 0.85rem; font-weight: 700; color: var(--desc-text); margin-top: 6px; text-align: center; white-space: nowrap; padding: 0 2px; }
+        .cat-item.active .cat-img-box { border-color: var(--accent); transform: scale(1.03); }
+        .cat-item span { font-size: 0.8rem; font-weight: 700; color: var(--desc-text); margin-top: 5px; text-align: center; white-space: nowrap; }
 
-        .menu-list { padding: 15px; max-width: 600px; margin: auto; }
-        .food-card { background: var(--white); border-radius: 22px; margin-bottom: 12px; display: flex; padding: 12px; gap: 12px; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .item-img-box { width: 85px; height: 85px; border-radius: 18px; overflow: hidden; background: #e5e5ea; flex-shrink: 0; }
+        /* كارت الطعام المعدل لحل التداخل تماماً */
+        .menu-list { padding: 12px; max-width: 600px; margin: auto; }
+        
+        .food-card { 
+            background: var(--white); 
+            border-radius: 24px; 
+            margin-bottom: 16px; 
+            display: flex; 
+            flex-direction: row; 
+            padding: 16px; 
+            gap: 16px; 
+            align-items: flex-start; 
+            box-shadow: 0 6px 16px rgba(0,0,0,0.04); 
+            border: 1px solid rgba(0,0,0,0.02); 
+            position: relative; 
+        }
+        
+        /* حاوية الصورة الجانبية والتنبيه */
+        .image-side-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .item-img-box { 
+            width: 115px; 
+            height: 115px; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            background: #e5e5ea; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
         .item-img-box img { width: 100%; height: 100%; object-fit: cover; }
-        .food-info { flex: 1; position: relative; }
-        .food-name { font-weight: 700; font-size: 1rem; }
-        .food-desc { font-size: 0.8rem; color: var(--desc-text); line-height: 1.3; margin: 4px 0; }
+        
+        /* التنبيه المبتكر تحت الصورة */
+        .mini-success-badge {
+            font-size: 11px;
+            font-weight: 800;
+            color: white;
+            background: #34c759;
+            padding: 3px 10px;
+            border-radius: 20px;
+            opacity: 0;
+            transform: scale(0.6);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+            box-shadow: 0 3px 8px rgba(52, 199, 89, 0.3);
+            visibility: hidden;
+        }
+        .mini-success-badge.show-toast {
+            opacity: 1;
+            transform: scale(1);
+            visibility: visible;
+        }
+
+        /* حاوية البيانات المحدثة لمنع الركوب والتداخل */
+        .food-info { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 6px; 
+            width: 100%; 
+            text-align: right; 
+        }
+        
+        /* السطر العلوي يحوي الاسم والسعر بشكل مرن متجاوب */
+        .food-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 2px;
+        }
+
+        .food-name { 
+            font-weight: 800; 
+            font-size: 1.2rem; 
+            color: var(--main-text); 
+            margin: 0; 
+            line-height: 1.3;
+            flex: 1;
+        }
+        
+        .food-price { 
+            font-weight: 800; 
+            color: var(--accent); 
+            font-size: 1.05rem; 
+            background: rgba(211, 84, 0, 0.08);
+            padding: 4px 12px;
+            border-radius: 10px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        body.dark-mode .food-price { background: rgba(211, 84, 0, 0.15); }
+
+        .food-desc { 
+            font-size: 0.84rem; 
+            color: var(--desc-text); 
+            line-height: 1.45; 
+            font-weight: 600;
+            display: block;
+            margin: 2px 0 4px 0;
+        }
+
+        .size-selector-container {
+            display: flex;
+            gap: 8px;
+            margin: 4px 0;
+        }
+        .size-radio-btn {
+            background: var(--bg);
+            color: var(--main-text);
+            border: 1px solid rgba(0,0,0,0.08);
+            padding: 4px 14px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        body.dark-mode .size-radio-btn { border-color: rgba(255,255,255,0.08); }
+        .size-radio-btn.selected {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
         
         .item-note-input-menu {
-            width: 100%; border: 1px solid rgba(0,0,0,0.08); background: var(--bg);
-            padding: 8px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 600; color: var(--main-text);
-            outline: none; text-align: right; margin: 8px 0;
+            width: 100%; 
+            border: 1px solid rgba(0,0,0,0.06); 
+            background: var(--bg);
+            padding: 10px 12px; 
+            border-radius: 12px; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+            color: var(--main-text);
+            outline: none; 
+            text-align: right; 
+            margin: 4px 0 6px 0; 
         }
-        body.dark-mode .item-note-input-menu { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
-        .item-note-input-menu::placeholder { color: var(--desc-text); opacity: 0.7; }
+        body.dark-mode .item-note-input-menu { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
+        .item-note-input-menu::placeholder { color: var(--desc-text); opacity: 0.6; }
 
-        .price-row { display: flex; justify-content: space-between; align-items: center; }
-        .food-price { font-weight: 800; color: var(--accent); font-size: 0.95rem; }
-        .add-btn { background: var(--accent); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .action-row { 
+            display: flex; 
+            justify-content: flex-start; 
+            align-items: center; 
+            width: 100%;
+            position: relative;
+        }
         
-        .added-notice { position: absolute; left: 45px; background: rgba(52, 199, 89, 0.15); color: var(--success); font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 10px; opacity: 0; transform: translateX(-10px); transition: 0.4s; }
-        .added-notice.show { opacity: 1; transform: translateX(0); }
-        .fly-item { position: fixed; z-index: 9999; pointer-events: none; width: 30px; height: 30px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1); }
+        .add-btn { 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            width: 100%;
+            padding: 10px 12px; 
+            border-radius: 12px; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px;
+            font-weight: 800; 
+            box-shadow: 0 4px 12px rgba(211, 84, 0, 0.2);
+            transition: transform 0.1s ease, background-color 0.2s;
+        }
+        .add-btn:active { transform: scale(0.98); }
+        
+        .fly-item { 
+            position: fixed; z-index: 9999; pointer-events: none; 
+            width: 24px; height: 24px; background: var(--accent); 
+            color: white; border-radius: 50%; display: flex; 
+            align-items: center; justify-content: center; font-size: 12px; 
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
+        }
 
-        .restaurant-footer { display: flex; flex-direction: column; gap: 15px; padding: 25px 20px; text-align: center; background: var(--white); border-top: 1px solid rgba(0,0,0,0.05); margin-top: 20px; padding-bottom: max(25px, env(safe-area-inset-bottom)); }
-        .footer-branch-phones { background: rgba(0,0,0,0.02); padding: 14px; border-radius: 18px; border: 1px solid rgba(0,0,0,0.04); text-align: center; }
+        /* الفوتر */
+        .restaurant-footer { display: flex; flex-direction: column; gap: 12px; padding: 20px 15px; text-align: center; background: var(--white); border-top: 1px solid rgba(0,0,0,0.05); margin-top: 25px; }
+        .footer-branch-phones { background: rgba(0,0,0,0.02); padding: 12px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.04); text-align: center; }
         body.dark-mode .footer-branch-phones { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.04); }
-        .footer-branch-phones h4 { color: var(--accent); font-weight: 800; font-size: 1.05rem; margin-bottom: 8px; }
+        .footer-branch-phones h4 { color: var(--accent); font-weight: 800; font-size: 1rem; margin-bottom: 6px; }
         .footer-phones { display: flex; flex-direction: column; gap: 6px; width: 100%; align-items: center; }
-        .footer-phones a { width: 100%; max-width: 250px; color: var(--main-text); text-decoration: none; font-weight: 700; font-size: 0.9rem; background: var(--bg); padding: 7px 12px; border-radius: 10px; transition: 0.2s; border: 0.5px solid rgba(0,0,0,0.04); }
+        .footer-phones a { width: 100%; max-width: 240px; color: var(--main-text); text-decoration: none; font-weight: 700; font-size: 0.85rem; background: var(--bg); padding: 6px 12px; border-radius: 10px; border: 0.5px solid rgba(0,0,0,0.04); }
         
-        .footer-rights { font-size: 0.8rem; font-weight: 600; margin-top: 10px; text-align: center; }
-        .dev-credit { font-size: 0.85rem; color: var(--desc-text); font-weight: 700; text-align: center; }
-        .dev-credit a { color: var(--address-tag); text-decoration: none; display: block; margin-top: 3px; }
+        .footer-rights { font-size: 0.75rem; font-weight: 600; margin-top: 5px; }
+        .dev-credit { font-size: 0.8rem; color: var(--desc-text); font-weight: 700; }
+        .dev-credit a { color: var(--address-tag); text-decoration: none; display: block; margin-top: 2px; }
 
+        /* نافذة السلة */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: flex-end; }
-        .modal-content { background: var(--white); width: 100%; max-width: 500px; padding: 25px; padding-bottom: max(25px, env(safe-area-inset-bottom)); border-radius: 30px 30px 0 0; max-height: 95vh; overflow-y: auto; color: var(--main-text); }
+        .modal-content { background: var(--white); width: 100%; max-width: 500px; padding: 20px; border-radius: 26px 26px 0 0; max-height: 92vh; overflow-y: auto; color: var(--main-text); }
         
-        .cart-item-card { display: flex; flex-direction: column; padding: 12px; background: rgba(0,0,0,0.03); border-radius: 18px; margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.03); }
+        .cart-item-card { display: flex; flex-direction: column; padding: 10px; background: rgba(0,0,0,0.03); border-radius: 16px; margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.03); }
         body.dark-mode .cart-item-card { background: rgba(255,255,255,0.03); }
-        .cart-item-top { display: flex; align-items: center; gap: 12px; width: 100%; }
-        .cart-item-img { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; }
+        .cart-item-top { display: flex; align-items: center; gap: 10px; width: 100%; }
+        .cart-item-img { width: 45px; height: 45px; border-radius: 10px; object-fit: cover; }
         .cart-item-info { flex: 1; }
-        .cart-item-name { font-weight: 700; font-size: 0.95rem; }
-        .cart-item-price { color: var(--accent); font-weight: 800; font-size: 0.85rem; display: block; }
-        .remove-btn { color: #ff3b30; font-weight: 800; font-size: 0.75rem; cursor: pointer; padding: 5px; }
+        .cart-item-name { font-weight: 700; font-size: 0.9rem; }
+        .cart-item-price { color: var(--accent); font-weight: 800; font-size: 0.8rem; display: block; }
+        .remove-btn { color: #ff3b30; font-weight: 800; font-size: 0.72rem; cursor: pointer; padding: 4px; }
         
         .item-note-input {
             width: 100%; border: none; border-bottom: 1px dashed rgba(0,0,0,0.15); background: transparent;
-            padding: 6px 0; margin-top: 10px; font-size: 0.8rem; font-weight: 600; color: var(--main-text);
+            padding: 5px 0; margin-top: 8px; font-size: 0.78rem; font-weight: 600; color: var(--main-text);
             outline: none; text-align: right;
         }
-        body.dark-mode .item-note-input { border-bottom-color: rgba(255,255,255,0.15); }
 
-        .order-type-container { display: flex; gap: 12px; margin: 15px 0; width: 100%; }
+        .order-type-container { display: flex; gap: 10px; margin: 12px 0; width: 100%; }
         .type-btn {
-            flex: 1; padding: 10px; border-radius: 14px; border: 2px solid rgba(0,0,0,0.08);
-            background: var(--bg); color: var(--main-text); font-weight: 800; font-size: 0.95rem;
-            cursor: pointer; text-align: center; transition: 0.2s;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+            flex: 1; padding: 10px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.08);
+            background: var(--bg); color: var(--main-text); font-weight: 800; font-size: 0.9rem;
+            cursor: pointer; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        body.dark-mode .type-btn { border-color: rgba(255,255,255,0.1); }
-        .type-btn.active { border-color: var(--accent); background: rgba(211, 84, 0, 0.1); color: var(--accent); }
-        .type-btn span.sub-text { font-size: 0.75rem; font-weight: 600; opacity: 0.85; display: block; margin-top: 2px; }
+        .type-btn.active { border-color: var(--accent); background: rgba(211, 84, 0, 0.08); color: var(--accent); }
+        .type-btn span.sub-text { font-size: 0.7rem; font-weight: 600; opacity: 0.8; margin-top: 2px; }
 
-        .delivery-select-label { display: block; margin: 15px 0 5px; font-weight: 700; font-size: 0.95rem; }
-        .delivery-search-input { width: 100%; padding: 15px; border-radius: 16px; border: 2px solid rgba(0,0,0,0.08); background: var(--bg); color: var(--main-text); font-size: 0.95rem; font-weight: 700; outline: none; margin-bottom: 5px; }
+        .delivery-select-label { display: block; margin: 12px 0 4px; font-weight: 700; font-size: 0.9rem; }
+        .delivery-search-input { width: 100%; padding: 12px; border-radius: 14px; border: 2px solid rgba(0,0,0,0.08); background: var(--bg); color: var(--main-text); font-size: 0.9rem; font-weight: 700; outline: none; }
 
         .live-delivery-results-container {
-            width: 100%; max-height: 180px; overflow-y: auto; background: var(--white);
-            border: 2px solid var(--accent); border-radius: 14px; margin-bottom: 15px;
-            display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            width: 100%; max-height: 165px; overflow-y: auto; background: var(--white);
+            border: 2px solid var(--accent); border-radius: 12px; margin-top: 5px; margin-bottom: 12px; display: none;
         }
-        .live-region-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 14px 16px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.05);
-            font-weight: 700; font-size: 0.95rem; color: var(--main-text); background: var(--white);
-        }
-        .live-region-price { font-size: 0.85rem; font-weight: 800; color: var(--address-tag); }
-        .no-regions-found { padding: 15px; text-align: center; color: var(--desc-text); font-weight: 600; font-size: 0.9rem; background: var(--white); }
+        .live-region-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.04); font-weight: 700; font-size: 0.9rem; color: var(--main-text); background: var(--white); }
+        .live-region-price { font-size: 0.8rem; font-weight: 800; color: var(--address-tag); }
+        .no-regions-found { padding: 12px; text-align: center; color: var(--desc-text); font-weight: 600; font-size: 0.85rem; }
 
-        .user-fields input { background: var(--bg); border: none; padding: 16px; border-radius: 14px; width: 100%; margin-bottom: 10px; color: var(--main-text); text-align: right; outline: none; font-weight: 600; }
-        .submit-btn { background: #34c759; color: white; border: none; padding: 18px; border-radius: 18px; width: 100%; font-weight: 800; cursor: pointer; font-size: 1rem; }
-
-        /* واجهة وتنسيق شريط تثبيت التطبيق الذكي لنظام iOS وآيفون */
-        .ios-install-prompt {
-            position: fixed; bottom: 20px; left: 5%; width: 90%; max-width: 450px;
-            background: var(--white); color: var(--main-text); padding: 16px;
-            border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            z-index: 99999; display: none; flex-direction: column; gap: 12px;
-            border: 1px solid rgba(211, 84, 0, 0.2);
-            animation: iosPromptSlideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-        @keyframes iosPromptSlideUp {
-            from { transform: translateY(120%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .ios-prompt-header { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-        .ios-prompt-title { font-weight: 800; font-size: 1rem; color: var(--accent); display: flex; align-items: center; gap: 8px; }
-        .ios-prompt-close { background: none; border: none; color: var(--desc-text); font-size: 1.2rem; cursor: pointer; font-weight: 700; padding: 0 4px; }
-        .ios-prompt-body { font-size: 0.85rem; font-weight: 700; color: var(--main-text); line-height: 1.5; text-align: right; }
-        .ios-prompt-steps { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 14px; }
-        body.dark-mode .ios-prompt-steps { background: rgba(255,255,255,0.03); }
-        .ios-step { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; font-weight: 600; }
-        .ios-icon-share { width: 22px; height: 22px; display: inline-block; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23007aff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8'/%3E%3Cpolyline points='16 6 12 2 8 6'/%3E%3Cline x1='12' y1='2' x2='12' y2='15'/%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; }
-        .ios-icon-add { width: 20px; height: 20px; display: inline-block; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231c1c1e' stroke-width='2'%3E%3Crect x='3' y='3' width='18' height='18' rx='5'/%3E%3Cline x1='12' y1='8' x2='12' y2='16'/%3E%3Cline x1='8' y1='12' x2='16' y2='12'/%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; }
-        body.dark-mode .ios-icon-add { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f2f2f7' stroke-width='2'%3E%3Crect x='3' y='3' width='18' height='18' rx='5'/%3E%3Cline x1='12' y1='8' x2='12' y2='16'/%3E%3Cline x1='8' y1='12' x2='16' y2='12'/%3E%3C/svg%3E"); }
+        .user-fields input { background: var(--bg); border: none; padding: 14px; border-radius: 12px; width: 100%; margin-bottom: 8px; color: var(--main-text); text-align: right; outline: none; font-weight: 600; font-size: 0.9rem; }
+        .submit-btn { background: #34c759; color: white; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 800; cursor: pointer; font-size: 0.95rem; }
     </style>
 </head>
 <body>
@@ -285,28 +421,6 @@
             <h2 class="loader-text">مطعم بولوفريتا</h2>
             <p class="loader-slogan">بولوفريتا.. أصل الجودة وحكاية كل طعم! ✨</p>
             <div class="loading-bar"><span id="progressBar"></span></div>
-        </div>
-    </div>
-
-    <div id="iosPrompt" class="ios-install-prompt">
-        <div class="ios-prompt-header">
-            <div class="ios-prompt-title">
-                <span style="font-size: 1.2rem;">📲</span> تثبيت منيو بولوفريتا على آيفون
-            </div>
-            <button class="ios-prompt-close" onclick="closeIosPrompt()">✕</button>
-        </div>
-        <div class="ios-prompt-body">
-            يمكنك إضافة المنيو مباشرة إلى شاشتك الرئيسية لتصفحه وطلب طعامك المفضل في أي وقت كأنه تطبيق مثبت تماماً:
-        </div>
-        <div class="ios-prompt-steps">
-            <div class="ios-step">
-                <span>1️⃣ اضغط على زر المشاركة السفلي في متصفح سفاري</span>
-                <span class="ios-icon-share"></span>
-            </div>
-            <div class="ios-step">
-                <span>2️⃣ اختر من القائمة "إضافة إلى الشاشة الرئيسية"</span>
-                <span class="ios-icon-add"></span>
-            </div>
         </div>
     </div>
 
@@ -331,7 +445,7 @@
                 <div class="cart-trigger-container">
                     <div class="cart-trigger" onclick="toggleCart(true)" id="cartBtn">
                         <span class="badge" id="cartBadge">0</span>
-                        <span style="font-size: 1.3rem;">🛒</span>
+                        <span style="font-size: 1.2rem;">🛒</span>
                     </div>
                 </div>
             </div>
@@ -353,7 +467,7 @@
 
     <div class="modal" id="cartModal" onclick="if(event.target==this) toggleCart(false)">
         <div class="modal-content">
-            <h2 style="margin-bottom: 20px; font-weight: 800;">طلباتك</h2>
+            <h2 style="margin-bottom: 15px; font-weight: 800; font-size: 1.3rem;">طلباتك</h2>
             <div id="cartItemsList"></div>
             
             <label class="delivery-select-label">🛵 طريقة الاستلام:</label>
@@ -375,16 +489,16 @@
                 <div id="liveDeliveryResults" class="live-delivery-results-container"></div>
             </div>
 
-            <div style="margin: 15px 0; padding: 15px; background: rgba(211, 84, 0, 0.06); border-radius: 18px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem;">
+            <div style="margin: 12px 0; padding: 12px; background: rgba(211, 84, 0, 0.05); border-radius: 16px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem;">
                     <span>إجمالي الطعام:</span>
                     <span id="foodTotalAmount">0 ج.م</span>
                 </div>
-                <div id="deliveryFeeRow" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; color: var(--address-tag);">
+                <div id="deliveryFeeRow" style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; color: var(--address-tag);">
                     <span>خدمة التوصيل:</span>
                     <span id="deliveryTotalAmount">0 ج.م</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.1rem; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 8px; color: var(--accent);">
+                <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.05rem; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 6px; color: var(--accent);">
                     <span>الإجمالي الكلي:</span>
                     <span id="grandTotalAmount">0 ج.م</span>
                 </div>
@@ -410,7 +524,7 @@
         let currentOrderType = "delivery"; 
         
         const BRANCH_WHATSAPP = {
-            damanhour: "201557761617", 
+            damanhour: "201557761617",
             abu_hummus: "201070033732"
         };
 
@@ -419,26 +533,59 @@
             document.getElementById('themeBtn').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         }
 
-        function preloadAllImages(items, uniqueCats) {
+        function parseSheetRowData(category, rawContent, rawIngredients, singlePrice, doublePrice) {
+            let content = rawContent ? rawContent.trim() : "";
+            let ingredients = rawIngredients ? rawIngredients.trim() : "";
+            
+            let name = content; 
+            let desc = ingredients; 
+
+            if (!desc && content) {
+                if (content.includes('-')) {
+                    let parts = content.split('-');
+                    name = parts[parts.length - 1].trim();
+                    desc = content;
+                } else if (content.includes('+')) {
+                    let parts = content.split('+');
+                    name = parts[parts.length - 1].trim();
+                    desc = content;
+                } else {
+                    let words = content.split(/\s+/);
+                    name = words.length > 2 ? words.slice(0, 2).join(' ') : content;
+                    desc = "وجبة شهية ومميزة من مطعم بولوفريتا";
+                }
+            } else if (!desc) {
+                desc = "وجبة شهية ومميزة من مطعم بولوفريتا";
+            }
+
+            // تهذيب وترتيب نص الوجبة الأخيرة "فريتا بيج ميل" ليصبح متناسقاً
+            if (name.includes("فريتا بيج ميل") || desc.includes("11بروستد")) {
+                desc = "11 قطعة بروستد دجاج مقرمش، 11 قطعة ستربس، 3 بطاطس، 2 أرز، كولوسلو كبير، لتر غازي، 3 تومية، 12 خبز طازج.";
+            }
+
+            let sP = singlePrice ? singlePrice.trim() : "";
+            let dP = doublePrice ? doublePrice.trim() : "";
+
+            return {
+                category: category,
+                name: name || "صنف مميز",
+                desc: desc, 
+                singlePrice: (sP && sP !== "0" && sP !== "") ? sP : null,
+                doublePrice: (dP && dP !== "0" && dP !== "") ? dP : null,
+                img: `${IMAGES_PATH}${category}.jpg` 
+            };
+        }
+
+        function preloadAllImages(uniqueCats) {
             return new Promise((resolve) => {
                 let loadedCount = 0;
-                const totalImages = items.length + uniqueCats.length;
-                
+                const totalImages = uniqueCats.length;
                 if (totalImages === 0) resolve();
 
                 function imageLoadedOrFailed() {
                     loadedCount++;
-                    if (loadedCount >= totalImages) {
-                        resolve();
-                    }
+                    if (loadedCount >= totalImages) resolve();
                 }
-
-                items.forEach(item => {
-                    const img = new Image();
-                    img.onload = imageLoadedOrFailed;
-                    img.onerror = imageLoadedOrFailed;
-                    img.src = item.img;
-                });
 
                 uniqueCats.forEach(cat => {
                     const img = new Image();
@@ -452,100 +599,83 @@
         document.addEventListener("DOMContentLoaded", () => {
             localStorage.removeItem("selectedBranch");
             startSmartLoadingPipeline();
-            detectAndShowIosPrompt();
         });
-
-        // فحص الهاتف إذا كان آيفون وخارج وضع التثبيت الفعلي لعرض البنر الخاص بالتثبيت
-        function detectAndShowIosPrompt() {
-            const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-            const hasSeenPrompt = localStorage.getItem('pwaIosPromptDismissed');
-
-            if (isIos && !isStandalone && !hasSeenPrompt) {
-                setTimeout(() => {
-                    document.getElementById('iosPrompt').style.display = 'flex';
-                }, 4000); // يظهر بذكاء وسلاسة بعد 4 ثوانٍ من استقرار التطبيق
-            }
-        }
-
-        function closeIosPrompt() {
-            document.getElementById('iosPrompt').style.style.display = 'none';
-            localStorage.setItem('pwaIosPromptDismissed', 'true');
-        }
 
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             let progress = 0;
-            const duration = 3000; 
-            const intervalTime = 30; 
-            const step = (intervalTime / duration) * 100;
+            const progressInterval = setInterval(() => {
+                if (progress < 85) { progress += 4; bar.style.width = progress + '%'; }
+            }, 30);
 
-            const dataPromise = Promise.all([
-                fetch(MENU_CSV_URL).then(res => res.text()),
-                fetch(DELIVERY_CSV_URL).then(res => res.text())
-            ]).catch(err => {
-                console.error("Error fetching data:", err);
-                return ["", ""];
-            });
+            try {
+                const [menuRes, deliveryRes] = await Promise.all([
+                    fetch(MENU_CSV_URL).then(res => res.text()),
+                    fetch(DELIVERY_CSV_URL).then(res => res.text())
+                ]);
 
-            const progressInterval = setInterval(async () => {
-                progress += step;
-                if (progress >= 100) {
-                    progress = 100;
-                    bar.style.width = '100%';
-                    clearInterval(progressInterval);
+                rawMenuRows = menuRes.split(/\r?\n/).slice(1);
+                rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
-                    const [menuRes, deliveryRes] = await dataPromise;
+                const tempCats = [...new Set(rawMenuRows.map(row => {
+                    const col = row.split(',');
+                    return col[0]?.trim().replace(/"/g, '').replace(/'/g, '');
+                }).filter(Boolean))];
 
-                    if (menuRes && deliveryRes) {
-                        rawMenuRows = menuRes.split(/\r?\n/).slice(1);
-                        rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
+                await preloadAllImages(tempCats);
 
-                        const tempMenu = rawMenuRows.map(row => {
-                            const col = row.split(',');
-                            return { 
-                                category: col[0]?.trim().replace(/"/g, ''), 
-                                name: col[1]?.trim().replace(/"/g, ''),
-                                img: `${IMAGES_PATH}${col[1]?.trim().replace(/"/g, '')}.jpg`
-                            };
-                        }).filter(i => i.name);
+                clearInterval(progressInterval);
+                bar.style.width = '100%';
 
-                        const tempCats = [...new Set(tempMenu.map(i => i.category))];
-                        
-                        await preloadAllImages(tempMenu, tempCats);
-                    }
-
+                setTimeout(() => {
                     document.getElementById('splash-screen').classList.add('splash-hidden');
                     setTimeout(() => {
                         document.getElementById("branchModal").classList.add("show");
-                    }, 150);
-                } else {
-                    bar.style.width = progress + '%';
-                }
-            }, intervalTime);
+                    }, 100);
+                }, 300);
+
+            } catch (error) {
+                clearInterval(progressInterval);
+                bar.style.width = '100%';
+                document.getElementById('splash-screen').classList.add('splash-hidden');
+                document.getElementById("branchModal").classList.add("show");
+            }
         }
 
         function selectBranch(branch) {
             localStorage.setItem("selectedBranch", branch);
             document.getElementById("branchModal").classList.remove("show");
-            
             document.body.classList.add("app-ready");
+            
             updateDynamicAddressArea(branch);
             updateDynamicFooterArea(branch);
             
-            menuData = rawMenuRows.map(row => {
+            let processedItems = [];
+
+            rawMenuRows.forEach(row => {
+                if (!row || !row.trim()) return;
                 const col = row.split(',');
-                return { 
-                    category: col[0]?.trim().replace(/"/g, ''), 
-                    name: col[1]?.trim().replace(/"/g, ''), 
-                    price: col[2]?.trim(), 
-                    desc: col[3]?.trim() || "", 
-                    img: `${IMAGES_PATH}${col[1]?.trim().replace(/"/g, '')}.jpg` 
-                };
-            }).filter(i => i.name);
+                let category = col[0]?.trim().replace(/"/g, '').replace(/'/g, '') || "";
+                let rawContent = col[1]?.trim().replace(/"/g, '').replace(/'/g, '') || "";
+                let rawIngredients = col[2]?.trim().replace(/"/g, '').replace(/'/g, '') || ""; 
+                
+                let singlePrice = col[3]?.trim().replace(/"/g, '') || ""; 
+                let doublePrice = col[4]?.trim().replace(/"/g, '') || ""; 
+
+                if(category && rawContent) {
+                    processedItems.push(parseSheetRowData(category, rawContent, rawIngredients, singlePrice, doublePrice));
+                }
+            });
             
             if (branch === "damanhour") {
-                menuData = menuData.filter(item => item.category !== "وجبات المشوي");
+                menuData = processedItems.filter(item => 
+                    item.category && 
+                    !item.category.includes("مشوي") && 
+                    !item.category.includes("الكفته") && 
+                    !item.category.includes("الكفتة")
+                );
+            } else {
+                menuData = processedItems;
             }
 
             renderNav();
@@ -659,7 +789,7 @@
                 container.innerHTML = `
                     <div>
                         <span class="addr-tag">📍 عنوان فرع دمنهور:</span>
-                        <span class="brand-addr">خلف النادي الاجتماعي أمام كافيه ريو</span>
+                        <span class="brand-addr">اول شارع 16 أمام كافيه ريو</span>
                     </div>
                     <div class="branch-badge" onclick="clearBranch()">تغيير الفرع 🔄</div>
                 `;
@@ -667,7 +797,7 @@
                 container.innerHTML = `
                     <div>
                         <span class="addr-tag">📍 عنوان فرع أبو حمص:</span>
-                        <span class="brand-addr">في أول ش 20 المقابل لقهوة المشربية</span>
+                        <span class="brand-addr">شارع 20 أمام بنك مصر</span>
                     </div>
                     <div class="branch-badge" onclick="clearBranch()">تغيير الفرع 🔄</div>
                 `;
@@ -700,33 +830,93 @@
         }
 
         function renderNav() {
+            if(menuData.length === 0) {
+                document.getElementById('catNav').innerHTML = '<div style="padding:10px;color:red;font-weight:700;width:100%;text-align:center;">⚠️ لا توجد بيانات متاحة حالياً بالمنيو.</div>';
+                return;
+            }
             const uniqueCats = [...new Map(menuData.map(item => [item.category, item])).values()];
             document.getElementById('catNav').innerHTML = uniqueCats.map((cat, idx) => `
                 <div class="cat-item ${idx === 0 ? 'active' : ''}" onclick="filterCat('${cat.category}', this)">
-                    <div class="cat-img-box"><img src="${IMAGES_PATH}${cat.category}.jpg" onerror="this.src='${IMAGES_PATH}default.jpg'"></div>
+                    <div class="cat-img-box"><img src="${IMAGES_PATH}${cat.category}.jpg" onerror="this.src='${IMAGES_PATH}llogo.jpg'"></div>
                     <span>${cat.category}</span>
                 </div>
             `).join('');
             if(menuData.length > 0) filterCat(menuData[0].category);
         }
 
+        let selectedSizesState = {};
+
+        function changeUIDisplayedPrice(globalItemIdx, sizeSelected, targetPrice) {
+            selectedSizesState[globalItemIdx] = sizeSelected;
+            const priceLabel = document.getElementById(`price-label-${globalItemIdx}`);
+            if(priceLabel) {
+                priceLabel.innerText = `${targetPrice} ج.م`;
+            }
+            
+            const parentCard = priceLabel.closest('.food-card');
+            if(parentCard) {
+                parentCard.querySelectorAll('.size-radio-btn').forEach(btn => btn.classList.remove('selected'));
+                const activeBtn = parentCard.querySelector(`[data-size="${sizeSelected}"]`);
+                if(activeBtn) activeBtn.classList.add('selected');
+            }
+        }
+
         function filterCat(cat, el) {
             if(el) { document.querySelectorAll('.cat-item').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
-            const items = menuData.filter(i => i.category === cat);
             
-            document.getElementById('menuList').innerHTML = items.map(item => {
-                const elementId = `note-${item.name.replace(/\s+/g, '-').replace(/"/g, '')}`;
+            document.getElementById('menuList').innerHTML = menuData.map((item, globalIndex) => {
+                if (item.category !== cat) return '';
+
+                const uniqueInputId = `note-input-${globalIndex}`;
+                const uniqueSuccessId = `success-toast-${globalIndex}`;
+                
+                let defaultSize = "S";
+                let defaultPrice = item.singlePrice || item.doublePrice || "0";
+                if (!item.singlePrice && item.doublePrice) {
+                    defaultSize = "D";
+                    defaultPrice = item.doublePrice;
+                }
+                
+                if(!selectedSizesState[globalIndex]) {
+                    selectedSizesState[globalIndex] = defaultSize;
+                } else {
+                    defaultSize = selectedSizesState[globalIndex];
+                    defaultPrice = defaultSize === "S" ? (item.singlePrice || item.doublePrice) : (item.doublePrice || item.singlePrice);
+                }
+
+                let sizeSelectorHtml = "";
+                if(item.singlePrice && item.doublePrice) {
+                    sizeSelectorHtml = `
+                        <div class="size-selector-container">
+                            <button type="button" class="size-radio-btn ${defaultSize === 'S' ? 'selected' : ''}" data-size="S" onclick="changeUIDisplayedPrice(${globalIndex}, 'S', '${item.singlePrice}')">S</button>
+                            <button type="button" class="size-radio-btn ${defaultSize === 'D' ? 'selected' : ''}" data-size="D" onclick="changeUIDisplayedPrice(${globalIndex}, 'D', '${item.doublePrice}')">D</button>
+                        </div>
+                    `;
+                }
+
                 return `
                     <div class="food-card">
-                        <div class="item-img-box"><img src="${item.img}" onerror="this.src='${IMAGES_PATH}default.jpg'"></div>
+                        <div class="image-side-container">
+                            <div class="item-img-box">
+                                <img src="${item.img}" onerror="this.src='${IMAGES_PATH}llogo.jpg'">
+                            </div>
+                            <div class="mini-success-badge" id="${uniqueSuccessId}">تمت الإضافة! ✅</div>
+                        </div>
+
                         <div class="food-info">
-                            <span class="food-name">${item.name}</span>
-                            <p class="food-desc">${item.desc}</p>
-                            <input type="text" id="${elementId}" class="item-note-input-menu" placeholder="📝 ملاحظاتك (بدون مخلل، زيادة صوص...)">
-                            <div class="price-row">
-                                <span class="food-price">${item.price} ج.م</span>
-                                <span class="added-notice">تم الإضافة ✅</span>
-                                <button class="add-btn" onclick="addToCart(event, this, '${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.img}')">+</button>
+                            <div class="food-title-row">
+                                <span class="food-name">${item.name}</span>
+                                <span class="food-price" id="price-label-${globalIndex}">${defaultPrice} ج.م</span>
+                            </div>
+                            
+                            <span class="food-desc">${item.desc}</span>
+                            
+                            ${sizeSelectorHtml}
+                            
+                            <input type="text" id="${uniqueInputId}" class="item-note-input-menu" placeholder="📝 ملاحظاتك (بدون مخلل، زيادة صوص...)">
+                            
+                            <div class="action-row">
+                                <button class="add-btn" onclick="addToCartDirect(event, this, ${globalIndex}, '${uniqueInputId}', '${uniqueSuccessId}')">إضافة للسلة 🛒</button>
                             </div>
                         </div>
                     </div>
@@ -734,69 +924,100 @@
             }).join('');
         }
 
-        function addToCart(e, btn, name, price, img) {
-            const elementId = `note-${name.replace(/\s+/g, '-').replace(/"/g, '')}`;
-            const noteInput = document.getElementById(elementId);
-            const noteValue = noteInput ? noteInput.value.trim() : "";
+        function addToCartDirect(e, btn, globalIndex, inputId, successId) {
+            e.stopPropagation();
             
-            const existing = cart.find(item => item.name === name && item.note === noteValue);
+            const noteInput = document.getElementById(inputId);
+            const noteValue = noteInput ? noteInput.value.trim() : "";
+            const item = menuData[globalIndex];
+            
+            const chosenSize = selectedSizesState[globalIndex] || "S";
+            const chosenPrice = chosenSize === "S" ? (item.singlePrice || item.doublePrice) : (item.doublePrice || item.singlePrice);
+            const sizeLabelText = (item.singlePrice && item.doublePrice) ? ` (${chosenSize})` : "";
+            const finalCartName = `${item.name}${sizeLabelText}`;
+            
+            const existing = cart.find(c => c.name === finalCartName && c.note === noteValue);
             if (existing) { 
                 existing.qty += 1; 
             } else { 
-                cart.push({name, price, img, qty: 1, note: noteValue}); 
+                cart.push({name: finalCartName, price: chosenPrice, img: item.img, qty: 1, note: noteValue}); 
             }
             
-            const notice = btn.previousElementSibling;
-            notice.classList.add('show');
-            setTimeout(() => notice.classList.remove('show'), 2000);
+            // 1. تشغيل التنبيه تحت الصورة مباشرة
+            const miniToast = document.getElementById(successId);
+            if(miniToast) {
+                miniToast.classList.add('show-toast');
+                setTimeout(() => {
+                    miniToast.classList.remove('show-toast');
+                }, 1300);
+            }
+
+            // 2. أنميشن اهتزاز السلة العلوية كلياً
+            const cartBtnEl = document.getElementById('cartBtn');
+            if(cartBtnEl) {
+                cartBtnEl.classList.add('cart-glow-success', 'shake-cart');
+                setTimeout(() => {
+                    cartBtnEl.classList.remove('cart-glow-success', 'shake-cart');
+                }, 1200);
+
+                // 3. أنميشن الطيران الإبداعي للهامبرغر
+                const fly = document.createElement('div');
+                fly.className = 'fly-item'; fly.innerHTML = '🍔';
+                fly.style.left = e.clientX + 'px'; fly.style.top = e.clientY + 'px';
+                document.body.appendChild(fly);
+
+                const cartPos = cartBtnEl.getBoundingClientRect();
+                setTimeout(() => {
+                    fly.style.left = (cartPos.left + 12) + 'px'; 
+                    fly.style.top = (cartPos.top + 12) + 'px';
+                    fly.style.transform = 'scale(0.2)'; 
+                    fly.style.opacity = '0';
+                }, 20);
+                setTimeout(() => { fly.remove(); }, 500);
+            }
 
             if(noteInput) noteInput.value = "";
-
-            const cartBtn = document.getElementById('cartBtn');
-            cartBtn.classList.add('shake-cart');
-            setTimeout(() => cartBtn.classList.remove('shake-cart'), 500);
-
-            const fly = document.createElement('div');
-            fly.className = 'fly-item'; fly.innerHTML = '🍔';
-            fly.style.left = e.clientX + 'px'; fly.style.top = e.clientY + 'px';
-            document.body.appendChild(fly);
-
-            const cartPos = cartBtn.getBoundingClientRect();
-            setTimeout(() => {
-                fly.style.left = (cartPos.left + 20) + 'px'; fly.style.top = (cartPos.top + 20) + 'px';
-                fly.style.transform = 'scale(0.2)'; fly.style.opacity = '0';
-            }, 10);
-            
-            setTimeout(() => { fly.remove(); updateCart(); }, 700);
+            updateCart();
         }
 
         function updateCart() {
             const totalItemsCount = cart.reduce((acc, curr) => acc + curr.qty, 0);
             const badge = document.getElementById('cartBadge');
-            badge.innerText = totalItemsCount; badge.classList.toggle('show', totalItemsCount > 0);
+            if(badge) {
+                badge.innerText = totalItemsCount; 
+                badge.classList.toggle('show', totalItemsCount > 0);
+            }
             
-            document.getElementById('cartItemsList').innerHTML = cart.map((item, idx) => `
-                <div class="cart-item-card">
-                    <div class="cart-item-top">
-                        <img src="${item.img}" class="cart-item-img" onerror="this.src='${IMAGES_PATH}default.jpg'">
-                        <div class="cart-item-info">
-                            <span class="cart-item-name">${item.name} (x${item.qty})</span>
-                            <span class="cart-item-price">${item.price * item.qty} ج.م</span>
+            const listContainer = document.getElementById('cartItemsList');
+            if(listContainer) {
+                listContainer.innerHTML = cart.map((item, idx) => `
+                    <div class="cart-item-card">
+                        <div class="cart-item-top">
+                            <img src="${item.img}" class="cart-item-img" onerror="this.src='${IMAGES_PATH}llogo.jpg'">
+                            <div class="cart-item-info">
+                                <span class="cart-item-name">${item.name} (x${item.qty})</span>
+                                <span class="cart-item-price">${parseFloat(item.price) * item.qty} ج.م</span>
+                            </div>
+                            <span class="remove-btn" onclick="removeFromCart(${idx})">حذف</span>
                         </div>
-                        <span class="remove-btn" onclick="removeFromCart(${idx})">حذف</span>
+                        <input type="text" class="item-note-input" placeholder="✍️ تعديل الملاحظة..." value="${item.note || ''}" oninput="saveItemNote(${idx}, this.value)">
                     </div>
-                    <input type="text" class="item-note-input" placeholder="✍️ تعديل الملاحظة..." value="${item.note || ''}" oninput="saveItemNote(${idx}, this.value)">
-                </div>
-            `).join('');
+                `).join('');
+            }
             
             updateCartTotals();
         }
 
         function updateCartTotals() {
             currentFoodTotal = cart.reduce((acc, curr) => acc + (parseFloat(curr.price) * curr.qty), 0);
-            document.getElementById('foodTotalAmount').innerText = `${currentFoodTotal} ج.م`;
-            document.getElementById('deliveryTotalAmount').innerText = `${currentDeliveryFee} ج.م`;
-            document.getElementById('grandTotalAmount').innerText = `${currentFoodTotal + currentDeliveryFee} ج.م`;
+            
+            const foodTotalEl = document.getElementById('foodTotalAmount');
+            const deliveryTotalEl = document.getElementById('deliveryTotalAmount');
+            const grandTotalEl = document.getElementById('grandTotalAmount');
+            
+            if(foodTotalEl) foodTotalEl.innerText = `${currentFoodTotal} ج.م`;
+            if(deliveryTotalEl) deliveryTotalEl.innerText = `${currentDeliveryFee} ج.م`;
+            if(grandTotalEl) grandTotalEl.innerText = `${currentFoodTotal + currentDeliveryFee} ج.م`;
         }
 
         function removeFromCart(idx) {
@@ -807,6 +1028,7 @@
 
         function toggleCart(show) { 
             const modal = document.getElementById('cartModal');
+            if(!modal) return;
             if (show) {
                 modal.style.display = 'flex';
                 history.pushState({ cartOpen: true }, "");
@@ -819,7 +1041,7 @@
 
         window.addEventListener('popstate', function (event) {
             const modal = document.getElementById('cartModal');
-            if (modal.style.display === 'flex') { 
+            if (modal && modal.style.display === 'flex') { 
                 modal.style.display = 'none'; 
             }
         });
@@ -855,7 +1077,7 @@
             msg += cart.map(i => {
                 let itemStr = `- ${i.name} (العدد: ${i.qty})`;
                 if(i.note) { itemStr += ` [⚠️ ملاحظة: ${i.note}]`; }
-                itemStr += ` -> ${i.price * i.qty} ج.م`;
+                itemStr += ` -> ${parseFloat(i.price) * i.qty} ج.م`;
                 return itemStr;
             }).join('\n');
 
@@ -866,7 +1088,6 @@
             msg += `💰 الإجمالي الكلي: ${currentFoodTotal + currentDeliveryFee} ج.م`;
             
             const targetWhatsAppNumber = BRANCH_WHATSAPP[selectedBranchKey] || "201070033732";
-                      
             window.open(`https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent(msg)}`);
         }
     </script>
