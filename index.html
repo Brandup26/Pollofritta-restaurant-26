@@ -144,13 +144,29 @@
             box-shadow: 0 0 18px #34c759;
         }
         
+        /* أنيميشن اهتزاز السلة المطلوبة بشدة للتفاعل المحترف */
         @keyframes cartPopBounce {
             0% { transform: scale(1); }
-            30% { transform: scale(1.25); rotation: -10deg; }
-            60% { transform: scale(0.9); rotation: 10deg; }
-            100% { transform: scale(1); }
+            20% { transform: scale(1.3) rotate(-15deg); }
+            40% { transform: scale(1.3) rotate(15deg); }
+            60% { transform: scale(1.3) rotate(-15deg); }
+            80% { transform: scale(1.3) rotate(15deg); }
+            100% { transform: scale(1) rotate(0deg); }
         }
-        .shake-cart { animation: cartPopBounce 0.4s ease; }
+        .shake-cart { animation: cartPopBounce 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+        
+        /* أنيميشن طيران العنصر للسلة */
+        .flying-element {
+            position: fixed;
+            width: 22px;
+            height: 22px;
+            background: var(--accent);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+            box-shadow: 0 4px 10px rgba(211, 84, 0, 0.4);
+            transition: all 0.75s cubic-bezier(0.19, 1, 0.22, 1);
+        }
         
         .badge { position: absolute; top: -5px; right: -5px; background: #ff3b30; color: white; font-size: 10px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; transform: scale(0); transition: 0.2s; }
         .badge.show { transform: scale(1); }
@@ -206,26 +222,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
         .item-img-box img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .mini-success-badge {
-            font-size: 11px;
-            font-weight: 800;
-            color: white;
-            background: #34c759;
-            padding: 3px 10px;
-            border-radius: 20px;
-            opacity: 0;
-            transform: scale(0.6);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            white-space: nowrap;
-            box-shadow: 0 3px 8px rgba(52, 199, 89, 0.3);
-            visibility: hidden;
-        }
-        .mini-success-badge.show-toast {
-            opacity: 1;
-            transform: scale(1);
-            visibility: visible;
-        }
 
         .food-info { 
             flex: 1; 
@@ -336,16 +332,20 @@
             gap: 6px;
             font-weight: 800; 
             box-shadow: 0 4px 12px rgba(211, 84, 0, 0.2);
-            transition: transform 0.1s ease, background-color 0.2s;
+            transition: all 0.2s ease;
         }
         .add-btn:active { transform: scale(0.98); }
         
-        .fly-item { 
-            position: fixed; z-index: 9999; pointer-events: none; 
-            width: 24px; height: 24px; background: var(--accent); 
-            color: white; border-radius: 50%; display: flex; 
-            align-items: center; justify-content: center; font-size: 12px; 
-            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
+        .add-btn.success-state {
+            background-color: var(--success) !important;
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3) !important;
+            animation: btnOrderShake 0.3s ease-in-out;
+        }
+
+        @keyframes btnOrderShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px) scale(0.98); }
+            75% { transform: translateX(4px) scale(0.98); }
         }
 
         .restaurant-footer { display: flex; flex-direction: column; gap: 12px; padding: 20px 15px; text-align: center; background: var(--white); border-top: 1px solid rgba(0,0,0,0.05); margin-top: 25px; }
@@ -531,7 +531,6 @@
             document.getElementById('themeBtn').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         }
 
-        // تحويل المسار العربي لـ URL آمن
         function getSafeImgPath(fileName) {
             return `${IMAGES_PATH}${encodeURIComponent(fileName)}.jpg`;
         }
@@ -574,7 +573,6 @@
                 desc: desc, 
                 singlePrice: (sP && sP !== "0" && sP !== "") ? sP : null,
                 doublePrice: (dP && dP !== "0" && dP !== "") ? dP : null,
-                // استخدام دالة المسار الآمن
                 img: getSafeImgPath(name || "صنف مميز")
             };
         }
@@ -616,6 +614,13 @@
         document.addEventListener("DOMContentLoaded", () => {
             localStorage.removeItem("selectedBranch");
             startSmartLoadingPipeline();
+            
+            window.addEventListener('popstate', (event) => {
+                const modal = document.getElementById('cartModal');
+                if (modal && modal.style.display === 'flex') {
+                    toggleCart(false, true);
+                }
+            });
         });
 
         function selectBranch(branch) {
@@ -840,7 +845,6 @@
                 if (item.category !== cat) return '';
 
                 const uniqueInputId = `note-input-${globalIndex}`;
-                const uniqueSuccessId = `success-toast-${globalIndex}`;
                 
                 let defaultSize = "S";
                 let defaultPrice = item.singlePrice || item.doublePrice || "0";
@@ -871,7 +875,6 @@
                             <div class="item-img-box">
                                 <img src="${item.img}" onerror="this.src='${IMAGES_PATH}llogo.jpg'">
                             </div>
-                            <div class="mini-success-badge" id="${uniqueSuccessId}">تمت الإضافة! ✅</div>
                         </div>
                         <div class="food-info">
                             <div class="food-title-row">
@@ -882,7 +885,7 @@
                             ${sizeSelectorHtml}
                             <input type="text" id="${uniqueInputId}" class="item-note-input-menu" placeholder="📝 ملاحظاتك...">
                             <div class="action-row">
-                                <button class="add-btn" onclick="addToCartDirect(event, this, ${globalIndex}, '${uniqueInputId}', '${uniqueSuccessId}')">إضافة للسلة 🛒</button>
+                                <button class="add-btn" onclick="addToCartDirect(event, this, ${globalIndex}, '${uniqueInputId}')">إضافة للسلة 🛒</button>
                             </div>
                         </div>
                     </div>
@@ -890,8 +893,33 @@
             }).join('');
         }
 
-        function addToCartDirect(e, btn, globalIndex, inputId, successId) {
+        function addToCartDirect(e, btn, globalIndex, inputId) {
             e.stopPropagation();
+            
+            if(btn.classList.contains('success-state')) return;
+
+            const cartBtnEl = document.getElementById('cartBtn');
+            if (!cartBtnEl) return;
+
+            // حساب الإحداثيات لأنيميشن الطيران
+            const btnRect = btn.getBoundingClientRect();
+            const cartRect = cartBtnEl.getBoundingClientRect();
+
+            // إنشاء الدائرة المتطايرة
+            const flyer = document.createElement('div');
+            flyer.className = 'flying-element';
+            flyer.style.left = `${btnRect.left + btnRect.width / 2 - 11}px`;
+            flyer.style.top = `${btnRect.top + btnRect.height / 2 - 11}px`;
+            document.body.appendChild(flyer);
+
+            // تشغيل الطيران والمنحنى الانسيابي
+            setTimeout(() => {
+                flyer.style.left = `${cartRect.left + cartRect.width / 2 - 11}px`;
+                flyer.style.top = `${cartRect.top + cartRect.height / 2 - 11}px`;
+                flyer.style.transform = 'scale(0.2)';
+                flyer.style.opacity = '0';
+            }, 20);
+
             const noteInput = document.getElementById(inputId);
             const noteValue = noteInput ? noteInput.value.trim() : "";
             const item = menuData[globalIndex];
@@ -902,18 +930,27 @@
             const existing = cart.find(c => c.name === finalCartName && c.note === noteValue);
             if (existing) existing.qty += 1; 
             else cart.push({name: finalCartName, price: chosenPrice, img: item.img, qty: 1, note: noteValue}); 
-            
-            const miniToast = document.getElementById(successId);
-            if(miniToast) {
-                miniToast.classList.add('show-toast');
-                setTimeout(() => miniToast.classList.remove('show-toast'), 1300);
-            }
 
-            const cartBtnEl = document.getElementById('cartBtn');
-            if(cartBtnEl) {
+            // تغيير حالة الزر فوراً إلى الأخضر
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "تم الطلب! ✅";
+            btn.classList.add('success-state');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('success-state');
+            }, 1500);
+
+            // تفعيل اهتزاز ووميض السلة بمجرد وصول العنصر الطائر (بعد 750 مللي ثانية)
+            setTimeout(() => {
+                flyer.remove();
                 cartBtnEl.classList.add('cart-glow-success', 'shake-cart');
-                setTimeout(() => cartBtnEl.classList.remove('cart-glow-success', 'shake-cart'), 1200);
-            }
+                
+                setTimeout(() => {
+                    cartBtnEl.classList.remove('cart-glow-success', 'shake-cart');
+                }, 600);
+            }, 750);
+
             if(noteInput) noteInput.value = "";
             updateCart();
         }
@@ -959,13 +996,21 @@
             if(cart.length === 0) toggleCart(false);
         }
 
-        function toggleCart(show) { 
+        function toggleCart(show, isPopState = false) { 
             const modal = document.getElementById('cartModal');
             if(!modal) return;
             if (show) {
                 modal.style.display = 'flex';
-                setOrderType(currentOrderType); 
-            } else modal.style.display = 'none';
+                setOrderType(currentOrderType);
+                if (window.location.hash !== '#cart') {
+                    window.history.pushState({cartOpen: true}, '', '#cart');
+                }
+            } else {
+                modal.style.display = 'none';
+                if (!isPopState && window.location.hash === '#cart') {
+                    window.history.back();
+                }
+            }
         }
 
         function sendToWA() {
