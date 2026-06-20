@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بولوفريتا | المنيو الرسمي</title>
     
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d35400">
+    
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -536,6 +539,12 @@
     </div>
 
     <script>
+        // تسجيل الـ Service Worker لتفعيل الـ PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+            .then(() => console.log("Service Worker Registered"));
+        }
+
         // دالة لتوليد طابع زمني دقيق لكل طلب fetch
         const getCacheBuster = () => Date.now();
         
