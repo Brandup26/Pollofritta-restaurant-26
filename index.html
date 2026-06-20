@@ -415,7 +415,6 @@
 <body>
 
     <script>
-        // إستراتيجية تدمير الكاش التلقائي الذكي لمنع تجميد التعديلات
         const CURRENT_APP_VERSION = "v3.0.6_forced_refresh"; 
         
         if ('serviceWorker' in navigator) {
@@ -426,12 +425,9 @@
             });
         }
 
-        // فحص الإصدار وإجبار المتصفح على كسر الكاش بإضافة المعلمة الفريدة تلقائياً
         if (localStorage.getItem("APP_VERSION_TRACK") !== CURRENT_APP_VERSION) {
             localStorage.clear(); 
             localStorage.setItem("APP_VERSION_TRACK", CURRENT_APP_VERSION);
-            
-            // جلب الرابط الحالي مع إضافة الطابع الزمني لضمان التحديث
             const cacheBuster = Date.now();
             window.location.replace(window.location.protocol + "//" + window.location.host + window.location.pathname + '?refresh=' + cacheBuster);
         }
@@ -536,12 +532,9 @@
     </div>
 
     <script>
-        // دالة لتوليد طابع زمني دقيق لكل طلب fetch
         const getCacheBuster = () => Date.now();
-        
         const MENU_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=0&single=true&output=csv&t=${getCacheBuster()}`;
         const DELIVERY_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=1130664195&single=true&output=csv&t=${getCacheBuster()}`;
-        
         const IMAGES_PATH = "./images/"; 
         let rawMenuRows = [], rawDeliveryRows = [];
         let menuData = [], allDeliveryAreas = [], cart = [];
@@ -603,12 +596,27 @@
             };
         }
 
+        async function preloadImages(imageArray) {
+            const promises = imageArray.map(src => {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.src = src;
+                    img.onload = resolve;
+                    img.onerror = resolve; // Continue even if one fails
+                });
+            });
+            await Promise.all(promises);
+        }
+
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
+            const startTime = Date.now();
+            const minLoadTime = 3500; // 3.5 ثوانٍ
             let progress = 0;
+
             const progressInterval = setInterval(() => {
-                if (progress < 85) { progress += 4; bar.style.width = progress + '%'; }
-            }, 30);
+                if (progress < 90) { progress += 2; bar.style.width = progress + '%'; }
+            }, 60);
 
             try {
                 const [menuRes, deliveryRes] = await Promise.all([
@@ -619,15 +627,24 @@
                 rawMenuRows = menuRes.split(/\r?\n/).slice(1);
                 rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
-                clearInterval(progressInterval);
-                bar.style.width = '100%';
+                // تجهيز قائمة الصور للتحميل المسبق
+                let imagesToLoad = [];
+                rawMenuRows.forEach(row => {
+                    const col = row.split(',');
+                    if (col[1]) imagesToLoad.push(getSafeImgPath(col[1].trim().replace(/"/g, '')));
+                });
+
+                await preloadImages(imagesToLoad);
+
+                const elapsed = Date.now() - startTime;
+                const remaining = Math.max(0, minLoadTime - elapsed);
 
                 setTimeout(() => {
+                    clearInterval(progressInterval);
+                    bar.style.width = '100%';
                     document.getElementById('splash-screen').classList.add('splash-hidden');
-                    setTimeout(() => {
-                        document.getElementById("branchModal").classList.add("show");
-                    }, 100);
-                }, 300);
+                    setTimeout(() => { document.getElementById("branchModal").classList.add("show"); }, 100);
+                }, remaining);
 
             } catch (error) {
                 clearInterval(progressInterval);
@@ -639,7 +656,6 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             startSmartLoadingPipeline();
-            
             window.addEventListener('popstate', (event) => {
                 const modal = document.getElementById('cartModal');
                 if (modal && modal.style.display === 'flex') {
