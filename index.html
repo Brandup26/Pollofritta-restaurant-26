@@ -86,7 +86,7 @@
             opacity: 0; animation: slideUpFade 0.6s ease-out forwards 0.5s;
         }
         body.dark-mode .loading-bar { background: rgba(255,255,255,0.1); }
-        .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.4s ease; }
+        .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 3s linear; }
         
         @keyframes creativeFloatGlow {
             0% { transform: translateY(0); }
@@ -545,6 +545,17 @@
             .then(() => console.log("Service Worker Registered"));
         }
 
+        // دالة لتحميل الصور مسبقاً قبل إخفاء شاشة التحميل
+        function preloadImages(imageUrls) {
+            return Promise.all(imageUrls.map(url => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.src = url;
+                    img.onload = img.onerror = resolve;
+                });
+            }));
+        }
+
         // دالة لتوليد طابع زمني دقيق لكل طلب fetch
         const getCacheBuster = () => Date.now();
         
@@ -614,10 +625,7 @@
 
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
-            let progress = 0;
-            const progressInterval = setInterval(() => {
-                if (progress < 85) { progress += 4; bar.style.width = progress + '%'; }
-            }, 30);
+            bar.style.width = '100%'; // التحرك لآخر الشريط فوراً
 
             try {
                 const [menuRes, deliveryRes] = await Promise.all([
@@ -628,21 +636,28 @@
                 rawMenuRows = menuRes.split(/\r?\n/).slice(1);
                 rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
-                clearInterval(progressInterval);
-                bar.style.width = '100%';
+                // تجهيز قائمة الصور للتحميل المسبق
+                let allImages = rawMenuRows.map(row => {
+                    const col = row.split(',');
+                    return getSafeImgPath(col[1]?.trim().replace(/"/g, '').replace(/'/g, '') || "llogo");
+                });
+                
+                // انتظار تحميل الصور والبيانات
+                await preloadImages(allImages);
 
+                // الانتظار ليتم 3 ثواني إجمالاً قبل الانتقال
                 setTimeout(() => {
                     document.getElementById('splash-screen').classList.add('splash-hidden');
                     setTimeout(() => {
                         document.getElementById("branchModal").classList.add("show");
                     }, 100);
-                }, 300);
+                }, 3000);
 
             } catch (error) {
-                clearInterval(progressInterval);
-                bar.style.width = '100%';
-                document.getElementById('splash-screen').classList.add('splash-hidden');
-                document.getElementById("branchModal").classList.add("show");
+                setTimeout(() => {
+                    document.getElementById('splash-screen').classList.add('splash-hidden');
+                    document.getElementById("branchModal").classList.add("show");
+                }, 3000);
             }
         }
 
