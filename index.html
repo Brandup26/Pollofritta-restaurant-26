@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بولوفريتا | المنيو الرسمي</title>
     
+    <link rel="manifest" href="manifest.json">
+    
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -37,7 +39,6 @@
             --header-bg: #1c1c1e;
         }
 
-        /* --- تعديل: إضافة تأثير احترافي للصور --- */
         img {
             opacity: 0;
             transition: opacity 0.6s ease-in-out;
@@ -45,7 +46,6 @@
         img.loaded {
             opacity: 1;
         }
-        /* -------------------------------------- */
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--main-text); line-height: 1.5; overflow-x: hidden; }
@@ -425,13 +425,20 @@
 <body>
 
     <script>
-        // --- تعديل: إظهار الصور بنعومة عند اكتمال تحميلها ---
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker Registered'))
+                .catch(err => console.log('Service Worker Failed', err));
+            });
+        }
+
         document.addEventListener('load', function(event) {
             if (event.target.tagName === 'IMG') {
                 event.target.classList.add('loaded');
             }
         }, true);
-        // --------------------------------------------------
 
         const CURRENT_APP_VERSION = "v3.0.6_forced_refresh"; 
         

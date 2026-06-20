@@ -1,11 +1,10 @@
 {
-  "name": "مطعم بولوفريتا",
+  "name": "بولوفريتا",
   "short_name": "بولوفريتا",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#d35400",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "images/llogo.jpg",
