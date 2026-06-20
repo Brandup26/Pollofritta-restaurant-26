@@ -425,6 +425,7 @@
 <body>
 
     <script>
+        // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
@@ -432,6 +433,12 @@
                 .catch(err => console.log('Service Worker Failed', err));
             });
         }
+
+        document.addEventListener('load', function(event) {
+            if (event.target.tagName === 'IMG') {
+                event.target.classList.add('loaded');
+            }
+        }, true);
 
         const CURRENT_APP_VERSION = "v3.0.6_forced_refresh"; 
         
@@ -453,7 +460,7 @@
 
     <div id="splash-screen">
         <div class="loader-content">
-            <img src="./images/llogo.jpg?v=3" class="loader-logo-big">
+            <img src="./images/llogo.jpg?v=3" class="loader-logo-big" fetchpriority="high" onload="this.classList.add('loaded')">
             <h2 class="loader-text">مطعم بولوفريتا</h2>
             <p class="loader-slogan">بولوفريتا.. أصل الجودة وحكاية كل طعم! ✨</p>
             <div class="loading-bar"><span id="progressBar"></span></div>
@@ -476,7 +483,7 @@
             <div class="header-top">
                 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
                 <div class="header-logo-container">
-                    <img src="./images/llogo.jpg?v=3" class="header-logo">
+                    <img src="./images/llogo.jpg?v=3" class="header-logo" fetchpriority="high" onload="this.classList.add('loaded')">
                 </div>
                 <div class="cart-trigger-container">
                     <div class="cart-trigger" onclick="toggleCart(true)" id="cartBtn">
@@ -614,10 +621,21 @@
             };
         }
 
+        async function preloadImages(imageArray) {
+            await Promise.all(imageArray.map(src => {
+                return new Promise(resolve => {
+                    const img = new Image();
+                    img.fetchPriority = "high";
+                    img.src = src;
+                    img.onload = img.onerror = resolve;
+                });
+            }));
+        }
+
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             let progress = 0;
-            const progressInterval = setInterval(() => { if (progress < 90) { progress += 5; bar.style.width = progress + '%'; } }, 100);
+            const progressInterval = setInterval(() => { if (progress < 90) { progress += 10; bar.style.width = progress + '%'; } }, 300);
 
             try {
                 const [menuRes, deliveryRes] = await Promise.all([
@@ -628,31 +646,20 @@
                 rawMenuRows = menuRes.split(/\r?\n/).slice(1);
                 rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
-                let imagesToLoad = [];
+                let imagesToLoad = new Set();
                 rawMenuRows.forEach(row => {
                     const col = row.split(',');
-                    if (col[1]) imagesToLoad.push(getSafeImgPath(col[1].trim().replace(/"/g, '')));
-                    if (col[0]) imagesToLoad.push(getSafeImgPath(col[0].trim().replace(/"/g, '')));
+                    if (col[1]) imagesToLoad.add(getSafeImgPath(col[1].trim().replace(/"/g, '')));
+                    if (col[0]) imagesToLoad.add(getSafeImgPath(col[0].trim().replace(/"/g, '')));
                 });
-                imagesToLoad.push(IMAGES_PATH + "llogo.jpg?v=3");
+                imagesToLoad.add(IMAGES_PATH + "llogo.jpg?v=3");
 
-                await Promise.all(imagesToLoad.map(src => {
-                    return new Promise((resolve) => {
-                        const img = new Image();
-                        img.fetchPriority = "high";
-                        img.src = src;
-                        img.onload = resolve;
-                        img.onerror = resolve;
-                    });
-                }));
-
+                await preloadImages(Array.from(imagesToLoad));
+                
                 clearInterval(progressInterval);
                 bar.style.width = '100%';
-                
-                setTimeout(() => {
-                    document.getElementById('splash-screen').classList.add('splash-hidden');
-                    document.getElementById("branchModal").classList.add("show");
-                }, 500);
+                document.getElementById('splash-screen').classList.add('splash-hidden');
+                setTimeout(() => { document.getElementById("branchModal").classList.add("show"); }, 300);
 
             } catch (error) {
                 clearInterval(progressInterval);
@@ -865,7 +872,7 @@
             const uniqueCats = [...new Map(menuData.map(item => [item.category, item])).values()];
             document.getElementById('catNav').innerHTML = uniqueCats.map((cat, idx) => `
                 <div class="cat-item ${idx === 0 ? 'active' : ''}" onclick="filterCat('${cat.category}', this)">
-                    <div class="cat-img-box"><img src="${getSafeImgPath(cat.category)}"></div>
+                    <div class="cat-img-box"><img src="${getSafeImgPath(cat.category)}" fetchpriority="high" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'"></div>
                     <span>${cat.category}</span>
                 </div>
             `).join('');
@@ -964,7 +971,7 @@
                     <div class="food-card">
                         <div class="image-side-container">
                             <div class="item-img-box">
-                                <img src="${item.img}" onload="this.classList.add('loaded')">
+                                <img src="${item.img}" fetchpriority="high" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'">
                             </div>
                         </div>
                         <div class="food-info">
@@ -1073,7 +1080,7 @@
                 listContainer.innerHTML = cart.map((item, idx) => `
                     <div class="cart-item-card">
                         <div class="cart-item-top">
-                            <img src="${item.img}" class="cart-item-img" onload="this.classList.add('loaded')">
+                            <img src="${item.img}" class="cart-item-img" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'">
                             <div class="cart-item-info">
                                 <span class="cart-item-name">${item.name} (x${item.qty})</span>
                                 <span class="cart-item-price">${parseFloat(item.price) * item.qty} ج.م</span>
