@@ -433,7 +433,7 @@
             });
         }
 
-        const CURRENT_APP_VERSION = "v3.0.7_forced_memory_cache"; 
+        const CURRENT_APP_VERSION = "v3.0.6_forced_refresh"; 
         
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
@@ -617,7 +617,7 @@
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             let progress = 0;
-            const progressInterval = setInterval(() => { if (progress < 80) { progress += 5; bar.style.width = progress + '%'; } }, 100);
+            const progressInterval = setInterval(() => { if (progress < 90) { progress += 5; bar.style.width = progress + '%'; } }, 100);
 
             try {
                 const [menuRes, deliveryRes] = await Promise.all([
@@ -628,16 +628,22 @@
                 rawMenuRows = menuRes.split(/\r?\n/).slice(1);
                 rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
-                let imagesToLoad = new Set();
+                let imagesToLoad = [];
                 rawMenuRows.forEach(row => {
                     const col = row.split(',');
-                    if (col[1]) imagesToLoad.add(getSafeImgPath(col[1].trim().replace(/"/g, '')));
-                    if (col[0]) imagesToLoad.add(getSafeImgPath(col[0].trim().replace(/"/g, '')));
+                    if (col[1]) imagesToLoad.push(getSafeImgPath(col[1].trim().replace(/"/g, '')));
+                    if (col[0]) imagesToLoad.push(getSafeImgPath(col[0].trim().replace(/"/g, '')));
                 });
-                imagesToLoad.add(IMAGES_PATH + "llogo.jpg?v=3");
+                imagesToLoad.push(IMAGES_PATH + "llogo.jpg?v=3");
 
-                await Promise.all(Array.from(imagesToLoad).map(src => {
-                    return fetch(src, { cache: 'force-cache' }).then(res => res.blob());
+                await Promise.all(imagesToLoad.map(src => {
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.fetchPriority = "high";
+                        img.src = src;
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                    });
                 }));
 
                 clearInterval(progressInterval);
@@ -646,7 +652,7 @@
                 setTimeout(() => {
                     document.getElementById('splash-screen').classList.add('splash-hidden');
                     document.getElementById("branchModal").classList.add("show");
-                }, 300);
+                }, 500);
 
             } catch (error) {
                 clearInterval(progressInterval);
