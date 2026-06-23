@@ -93,8 +93,14 @@
             opacity: 0; animation: slideUpFade 0.6s ease-out forwards 0.5s;
         }
         body.dark-mode .loading-bar { background: rgba(255,255,255,0.1); }
-        .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 3s ease-in-out; }
+        .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.1s linear; }
         
+        /* تنسيق النسبة المئوية أسفل شريط التحميل */
+        .loading-percentage {
+            font-size: 0.85rem; font-weight: 700; color: var(--accent); margin-top: 8px;
+            opacity: 0; animation: slideUpFade 0.6s ease-out forwards 0.5s;
+        }
+
         @keyframes creativeFloatGlow {
             0% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
@@ -425,13 +431,34 @@
 <body>
 
     <script>
-        // PWA Service Worker Registration
+        // إعداد استراتيجية التحديث والتطهير الجذري للكاش للتنفيذ مدى الحياة دون إدخال المستخدم
+        const CURRENT_APP_VERSION = "v4.0.0_ultra_refresh"; 
+        
+        // تعطيل وحذف أي Service Worker قديم بشكل صارم لمنع التخزين المؤقت للملفات
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Service Worker Registered'))
-                .catch(err => console.log('Service Worker Failed', err));
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister().then(function(boolean) {
+                        if(boolean) console.log('Old Service Worker cleared successfully.');
+                    });
+                }
             });
+        }
+
+        // فحص الإصدار الحالي في التخزين المحلي، إذا اختلف نقوم بمسح الكاش وإعادة التحميل الإجباري
+        if (localStorage.getItem("APP_VERSION_TRACK") !== CURRENT_APP_VERSION) {
+            localStorage.clear(); 
+            localStorage.setItem("APP_VERSION_TRACK", CURRENT_APP_VERSION);
+            
+            // إجبار المتصفح على تنظيف كاش الملفات كلياً وجلب الملف الجديد مباشرة من الخادم
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (let name of names) caches.delete(name);
+                });
+            }
+            
+            const cacheBuster = Date.now();
+            window.location.replace(window.location.protocol + "//" + window.location.host + window.location.pathname + '?refresh=' + cacheBuster);
         }
 
         document.addEventListener('load', function(event) {
@@ -439,31 +466,15 @@
                 event.target.classList.add('loaded');
             }
         }, true);
-
-        const CURRENT_APP_VERSION = "v3.0.6_forced_refresh"; 
-        
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                    registration.unregister();
-                }
-            });
-        }
-
-        if (localStorage.getItem("APP_VERSION_TRACK") !== CURRENT_APP_VERSION) {
-            localStorage.clear(); 
-            localStorage.setItem("APP_VERSION_TRACK", CURRENT_APP_VERSION);
-            const cacheBuster = Date.now();
-            window.location.replace(window.location.protocol + "//" + window.location.host + window.location.pathname + '?refresh=' + cacheBuster);
-        }
     </script>
 
     <div id="splash-screen">
         <div class="loader-content">
-            <img src="./images/llogo.jpg?v=3" class="loader-logo-big" fetchpriority="high" onload="this.classList.add('loaded')">
+            <img src="./images/llogo.jpg?v=4" class="loader-logo-big" fetchpriority="high" onload="this.classList.add('loaded')">
             <h2 class="loader-text">مطعم بولوفريتا</h2>
             <p class="loader-slogan">بولوفريتا.. أصل الجودة وحكاية كل طعم! ✨</p>
             <div class="loading-bar"><span id="progressBar"></span></div>
+            <div id="loadingPercentage" class="loading-percentage">جاري التحميل 0%</div>
         </div>
     </div>
 
@@ -483,7 +494,7 @@
             <div class="header-top">
                 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
                 <div class="header-logo-container">
-                    <img src="./images/llogo.jpg?v=3" class="header-logo" fetchpriority="high" onload="this.classList.add('loaded')">
+                    <img src="./images/llogo.jpg?v=4" class="header-logo" fetchpriority="high" onload="this.classList.add('loaded')">
                 </div>
                 <div class="cart-trigger-container">
                     <div class="cart-trigger" onclick="toggleCart(true)" id="cartBtn">
@@ -632,10 +643,42 @@
             }));
         }
 
+        // دالة خط أنابيب التحميل المحدثة لتعمل في 5 ثوانٍ كحد أقصى مع عرض النسبة المئوية النصية بدقة لجميع الصور
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
+            const percentageText = document.getElementById("loadingPercentage");
             let progress = 0;
-            const progressInterval = setInterval(() => { if (progress < 90) { progress += 10; bar.style.width = progress + '%'; } }, 300);
+            let pipelineFinished = false;
+
+            // تحديث مرئي مستمر للمؤشر والنسبة المئوية النصية في غضون 5 ثوانٍ بحد أقصى
+            const progressInterval = setInterval(() => { 
+                if (progress < 95) { 
+                    progress += 5; 
+                    bar.style.width = progress + '%'; 
+                    percentageText.innerText = `جاري التحميل ${progress}%`;
+                } 
+            }, 250);
+
+            // دالة الإغلاق الفوري لشاشة السبراش عند اكتمال خط الأنابيب أو انتهاء الـ 5 ثوانٍ
+            const finishPipeline = () => {
+                if (pipelineFinished) return;
+                pipelineFinished = true;
+                clearInterval(progressInterval);
+                bar.style.width = '100%';
+                percentageText.innerText = `جاري التحميل 100%`;
+                
+                setTimeout(() => {
+                    document.getElementById('splash-screen').classList.add('splash-hidden');
+                    setTimeout(() => { 
+                        document.getElementById("branchModal").classList.add("show"); 
+                    }, 300);
+                }, 200);
+            };
+
+            // حد أقصى صارم 5 ثوانٍ لإنهاء شاشة التحميل مهما حدث لمنع بقائها معلقة
+            const forceTimeout = setTimeout(() => {
+                finishPipeline();
+            }, 5000);
 
             try {
                 const [menuRes, deliveryRes] = await Promise.all([
@@ -652,19 +695,17 @@
                     if (col[1]) imagesToLoad.add(getSafeImgPath(col[1].trim().replace(/"/g, '')));
                     if (col[0]) imagesToLoad.add(getSafeImgPath(col[0].trim().replace(/"/g, '')));
                 });
-                imagesToLoad.add(IMAGES_PATH + "llogo.jpg?v=3");
+                imagesToLoad.add(IMAGES_PATH + "llogo.jpg?v=4");
 
+                // تحميل الصور مسبقاً بالتوازي خلال مهلة الـ 5 ثوانٍ المحددة
                 await preloadImages(Array.from(imagesToLoad));
                 
-                clearInterval(progressInterval);
-                bar.style.width = '100%';
-                document.getElementById('splash-screen').classList.add('splash-hidden');
-                setTimeout(() => { document.getElementById("branchModal").classList.add("show"); }, 300);
+                clearTimeout(forceTimeout);
+                finishPipeline();
 
             } catch (error) {
-                clearInterval(progressInterval);
-                document.getElementById('splash-screen').classList.add('splash-hidden');
-                document.getElementById("branchModal").classList.add("show");
+                clearTimeout(forceTimeout);
+                finishPipeline();
             }
         }
 
