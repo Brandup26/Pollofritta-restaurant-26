@@ -65,7 +65,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--white); z-index: 9999;
             display: flex; justify-content: center; align-items: center;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
             opacity: 1; visibility: visible;
         }
         .loader-content { text-align: center; }
@@ -93,9 +93,8 @@
             opacity: 0; animation: slideUpFade 0.6s ease-out forwards 0.5s;
         }
         body.dark-mode .loading-bar { background: rgba(255,255,255,0.1); }
-        .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.1s linear; }
+        .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.05s linear; }
         
-        /* تنسيق النسبة المئوية أسفل شريط التحميل */
         .loading-percentage {
             font-size: 0.85rem; font-weight: 700; color: var(--accent); margin-top: 8px;
             opacity: 0; animation: slideUpFade 0.6s ease-out forwards 0.5s;
@@ -431,10 +430,8 @@
 <body>
 
     <script>
-        // إعداد استراتيجية التحديث والتطهير الجذري للكاش للتنفيذ مدى الحياة دون إدخال المستخدم
         const CURRENT_APP_VERSION = "v4.0.0_ultra_refresh"; 
         
-        // تعطيل وحذف أي Service Worker قديم بشكل صارم لمنع التخزين المؤقت للملفات
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
                 for(let registration of registrations) {
@@ -445,12 +442,10 @@
             });
         }
 
-        // فحص الإصدار الحالي في التخزين المحلي، إذا اختلف نقوم بمسح الكاش وإعادة التحميل الإجباري
         if (localStorage.getItem("APP_VERSION_TRACK") !== CURRENT_APP_VERSION) {
             localStorage.clear(); 
             localStorage.setItem("APP_VERSION_TRACK", CURRENT_APP_VERSION);
             
-            // إجبار المتصفح على تنظيف كاش الملفات كلياً وجلب الملف الجديد مباشرة من الخادم
             if ('caches' in window) {
                 caches.keys().then(function(names) {
                     for (let name of names) caches.delete(name);
@@ -643,19 +638,17 @@
             }));
         }
 
-        // دالة خط أنابيب التحميل المعدلة لتعمل بانتظام تام مدة 7 ثوانٍ لضمان جلب كافة الصور مسبقاً
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             const percentageText = document.getElementById("loadingPercentage");
             
-            const totalDuration = 7000; // 7 ثوانٍ
-            const intervalStep = 70;    // التحديث كل 70 مللي ثانية لحركة ناعمة جداً ومستمرة
+            const totalDuration = 3500; // تم تقليص المدة الكلية لـ 3.5 ثانية فقط لسرعة فائقة
+            const intervalStep = 35;    
             const totalSteps = totalDuration / intervalStep;
             
             let currentStep = 0;
             let dataLoaded = false;
 
-            // بدء العداد الزمني المنتظم لملء الشريط والنسبة المئوية بصورة ثابتة ومريحة للعين
             const progressInterval = setInterval(() => { 
                 currentStep++;
                 let progress = Math.floor((currentStep / totalSteps) * 100);
@@ -665,19 +658,17 @@
                     percentageText.innerText = `جاري التحميل ${progress}%`;
                 }
 
-                // عند الوصول لنهاية الـ 7 ثوانٍ والتأكد من جلب البيانات، يتم إخفاء الـ Splash
                 if (currentStep >= totalSteps) {
                     clearInterval(progressInterval);
                     if (dataLoaded) {
                         hideSplashAndShowBranches();
                     } else {
-                        // انتظار إضافي بسيط جداً إذا كان الاتصال ضعيفاً والبيانات لم تكتمل بعد
                         const checkDataReady = setInterval(() => {
                             if (dataLoaded) {
                                 clearInterval(checkDataReady);
                                 hideSplashAndShowBranches();
                             }
-                        }, 100);
+                        }, 50);
                     }
                 }
             }, intervalStep);
@@ -685,16 +676,15 @@
             function hideSplashAndShowBranches() {
                 bar.style.width = '100%';
                 percentageText.innerText = `جاري التحميل 100%`;
-                setTimeout(() => {
-                    document.getElementById('splash-screen').classList.add('splash-hidden');
-                    setTimeout(() => { 
-                        document.getElementById("branchModal").classList.add("show"); 
-                    }, 300);
-                }, 200);
+                
+                // إلغاء كلي للـ setTimeout القديم (4 ثوانٍ)، الإخفاء والدخول فوري تماماً هنا
+                document.getElementById('splash-screen').classList.add('splash-hidden');
+                setTimeout(() => { 
+                    document.getElementById("branchModal").classList.add("show"); 
+                }, 100);
             }
 
             try {
-                // جلب بيانات ملفات الاكسل بالتوازي مع العداد الجاري
                 const [menuRes, deliveryRes] = await Promise.all([
                     fetch(MENU_CSV_URL).then(res => res.text()),
                     fetch(DELIVERY_CSV_URL).then(res => res.text())
@@ -711,12 +701,10 @@
                 });
                 imagesToLoad.add(IMAGES_PATH + "llogo.jpg?v=4");
 
-                // استغلال وقت الـ 7 ثوانٍ في تحميل كافة مصفوفة الصور داخل كاش المتصفح فوراً
                 await preloadImages(Array.from(imagesToLoad));
                 dataLoaded = true;
 
             } catch (error) {
-                // تلافي أي خطأ في الشبكة لضمان استمرار عمل التطبيق والدخول للمنيو
                 dataLoaded = true;
             }
         }
