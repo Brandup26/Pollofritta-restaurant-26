@@ -14,7 +14,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="بولوفريتا">
-    <link rel="apple-touch-icon" href="images/llogo.jpg">
+    <link rel="apple-touch-icon" href="images/logo.png?v=4.0.1">
+    <link rel="icon" type="image/png" href="images/logo.png?v=4.0.1">
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -431,10 +432,9 @@
 <body>
 
     <script>
-        // إعداد استراتيجية التحديث والتطهير الجذري للكاش للتنفيذ مدى الحياة دون إدخال المستخدم
-        const CURRENT_APP_VERSION = "v4.0.0_ultra_refresh"; 
+        // رفع رقم الـ Version والتحكم في الكاش إجبارياً لإرغام المتصفحات على سحب كود الـ index واللوجو الجديد فوراً
+        const CURRENT_APP_VERSION = "v4.0.1_png_logo_refresh"; 
         
-        // تعطيل وحذف أي Service Worker قديم بشكل صارم لمنع التخزين المؤقت للملفات
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
                 for(let registration of registrations) {
@@ -445,12 +445,10 @@
             });
         }
 
-        // فحص الإصدار الحالي في التخزين المحلي، إذا اختلف نقوم بمسح الكاش وإعادة التحميل الإجباري
         if (localStorage.getItem("APP_VERSION_TRACK") !== CURRENT_APP_VERSION) {
             localStorage.clear(); 
             localStorage.setItem("APP_VERSION_TRACK", CURRENT_APP_VERSION);
             
-            // إجبار المتصفح على تنظيف كاش الملفات كلياً وجلب الملف الجديد مباشرة من الخادم
             if ('caches' in window) {
                 caches.keys().then(function(names) {
                     for (let name of names) caches.delete(name);
@@ -470,7 +468,7 @@
 
     <div id="splash-screen">
         <div class="loader-content">
-            <img src="./images/llogo.jpg?v=4" class="loader-logo-big" fetchpriority="high" onload="this.classList.add('loaded')">
+            <img src="./images/logo.png?v=4.0.1" class="loader-logo-big" fetchpriority="high" onload="this.classList.add('loaded')">
             <h2 class="loader-text">مطعم بولوفريتا</h2>
             <p class="loader-slogan">بولوفريتا.. أصل الجودة وحكاية كل طعم! ✨</p>
             <div class="loading-bar"><span id="progressBar"></span></div>
@@ -494,7 +492,7 @@
             <div class="header-top">
                 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
                 <div class="header-logo-container">
-                    <img src="./images/llogo.jpg?v=4" class="header-logo" fetchpriority="high" onload="this.classList.add('loaded')">
+                    <img src="./images/logo.png?v=4.0.1" class="header-logo" fetchpriority="high" onload="this.classList.add('loaded')">
                 </div>
                 <div class="cart-trigger-container">
                     <div class="cart-trigger" onclick="toggleCart(true)" id="cartBtn">
@@ -571,6 +569,7 @@
         const getCacheBuster = () => Date.now();
         const MENU_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=0&single=true&output=csv&t=${getCacheBuster()}`;
         const DELIVERY_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=1130664195&single=true&output=csv&t=${getCacheBuster()}`;
+        const PAGES_VERSION_TAG = "4.0.1"; // تاغ لتوحيد النسخ البرمجية مستقبلياً من الكود البرمجي
         const IMAGES_PATH = "./images/"; 
         let rawMenuRows = [], rawDeliveryRows = [];
         let menuData = [], allDeliveryAreas = [], cart = [];
@@ -643,19 +642,17 @@
             }));
         }
 
-        // دالة خط أنابيب التحميل المعدلة لتعمل بانتظام تام مدة 7 ثوانٍ لضمان جلب كافة الصور مسبقاً
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             const percentageText = document.getElementById("loadingPercentage");
             
-            const totalDuration = 7000; // 7 ثوانٍ
-            const intervalStep = 70;    // التحديث كل 70 مللي ثانية لحركة ناعمة جداً ومستمرة
+            const totalDuration = 7000; 
+            const intervalStep = 70;    
             const totalSteps = totalDuration / intervalStep;
             
             let currentStep = 0;
             let dataLoaded = false;
 
-            // بدء العداد الزمني المنتظم لملء الشريط والنسبة المئوية بصورة ثابتة ومريحة للعين
             const progressInterval = setInterval(() => { 
                 currentStep++;
                 let progress = Math.floor((currentStep / totalSteps) * 100);
@@ -665,13 +662,11 @@
                     percentageText.innerText = `جاري التحميل ${progress}%`;
                 }
 
-                // عند الوصول لنهاية الـ 7 ثوانٍ والتأكد من جلب البيانات، يتم إخفاء الـ Splash
                 if (currentStep >= totalSteps) {
                     clearInterval(progressInterval);
                     if (dataLoaded) {
                         hideSplashAndShowBranches();
                     } else {
-                        // انتظار إضافي بسيط جداً إذا كان الاتصال ضعيفاً والبيانات لم تكتمل بعد
                         const checkDataReady = setInterval(() => {
                             if (dataLoaded) {
                                 clearInterval(checkDataReady);
@@ -694,7 +689,6 @@
             }
 
             try {
-                // جلب بيانات ملفات الاكسل بالتوازي مع العداد الجاري
                 const [menuRes, deliveryRes] = await Promise.all([
                     fetch(MENU_CSV_URL).then(res => res.text()),
                     fetch(DELIVERY_CSV_URL).then(res => res.text())
@@ -709,14 +703,13 @@
                     if (col[1]) imagesToLoad.add(getSafeImgPath(col[1].trim().replace(/"/g, '')));
                     if (col[0]) imagesToLoad.add(getSafeImgPath(col[0].trim().replace(/"/g, '')));
                 });
-                imagesToLoad.add(IMAGES_PATH + "llogo.jpg?v=4");
+                // تحديث مسار الصورة المطلوبة في الجلب المسبق للكاش لتعمل بنسخة PNG
+                imagesToLoad.add(IMAGES_PATH + "logo.png?v=4.0.1");
 
-                // استغلال وقت الـ 7 ثوانٍ في تحميل كافة مصفوفة الصور داخل كاش المتصفح فوراً
                 await preloadImages(Array.from(imagesToLoad));
                 dataLoaded = true;
 
             } catch (error) {
-                // تلافي أي خطأ في الشبكة لضمان استمرار عمل التطبيق والدخول للمنيو
                 dataLoaded = true;
             }
         }
@@ -925,7 +918,7 @@
             const uniqueCats = [...new Map(menuData.map(item => [item.category, item])).values()];
             document.getElementById('catNav').innerHTML = uniqueCats.map((cat, idx) => `
                 <div class="cat-item ${idx === 0 ? 'active' : ''}" onclick="filterCat('${cat.category}', this)">
-                    <div class="cat-img-box"><img src="${getSafeImgPath(cat.category)}" fetchpriority="high" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'"></div>
+                    <div class="cat-img-box"><img src="${getSafeImgPath(cat.category)}" fetchpriority="high" onerror="this.src='${IMAGES_PATH}logo.png?t=${getCacheBuster()}'"></div>
                     <span>${cat.category}</span>
                 </div>
             `).join('');
@@ -1024,7 +1017,7 @@
                     <div class="food-card">
                         <div class="image-side-container">
                             <div class="item-img-box">
-                                <img src="${item.img}" class="menu-food-img" fetchpriority="high" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'">
+                                <img src="${item.img}" class="menu-food-img" fetchpriority="high" onerror="this.src='${IMAGES_PATH}logo.png?t=${getCacheBuster()}'">
                             </div>
                         </div>
                         <div class="food-info">
@@ -1133,7 +1126,7 @@
                 listContainer.innerHTML = cart.map((item, idx) => `
                     <div class="cart-item-card">
                         <div class="cart-item-top">
-                            <img src="${item.img}" class="cart-item-img" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'">
+                            <img src="${item.img}" class="cart-item-img" onerror="this.src='${IMAGES_PATH}logo.png?t=${getCacheBuster()}'">
                             <div class="cart-item-info">
                                 <span class="cart-item-name">${item.name} (x${item.qty})</span>
                                 <span class="cart-item-price">${parseFloat(item.price) * item.qty} ج.م</span>
