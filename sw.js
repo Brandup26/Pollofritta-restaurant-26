@@ -1,6 +1,5 @@
 // اسم الكاش - يتم تحديث الرقم (v4) تلقائياً عند تغيير الكود لضمان تجديد الكاش
-const CACHE_NAME = 'polo-fritta-cache-v4';
-
+const CACHE_NAME = 'polo-fritta-cache-v5';
 // الملفات الأساسية التي يتم حفظها في الكاش ليعمل الأبلكيشن أوفلاين وبسرعة صاروخية
 const ASSETS_TO_CACHE = [
   '/',

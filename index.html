@@ -220,6 +220,32 @@
             border: 1px solid rgba(0,0,0,0.02); 
             position: relative; 
         }
+
+        /* تنسيق مخصص ملائم ومميز لعرض بطاقة العروض بصورة كبيرة */
+        .food-card.offers-special-card {
+            flex-direction: column;
+            padding: 0;
+            overflow: hidden;
+        }
+        .food-card.offers-special-card .offers-img-top-container {
+            width: 100%;
+            height: 230px;
+            overflow: hidden;
+            background: #e5e5ea;
+        }
+        .food-card.offers-special-card .offers-img-top-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .food-card.offers-special-card .offers-info-container {
+            width: 100%;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: right;
+        }
         
         .image-side-container {
             display: flex;
@@ -634,12 +660,12 @@
             }));
         }
 
-        // خط الأنابيب الذكي الموزع بدقة زمنية ثابتة (بين 7 إلى 8 ثوانٍ)
+        // خط الأنابيب الذكي الموزع بدقة زمنية ثابتة لا تتعدى الـ 8 ثواني مطلقاً
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             const percentageText = document.getElementById("loadingPercentage");
             
-            // ضبط زمن التحميل الإجمالي ليكون 7500 ميللي ثانية (7.5 ثانية بالتمام)
+            // ضبط زمن التحميل الإجمالي ليكون 7500 ميللي ثانية (7.5 ثانية بالتمام والكمال) لضمان عدم تخطي الـ 8 ثواني
             const totalDuration = 7500; 
             const intervalStep = 50;    
             const totalSteps = totalDuration / intervalStep;
@@ -657,21 +683,10 @@
                     percentageText.innerText = `جاري التحميل ${progress}%`;
                 }
 
-                // عند انتهاء الوقت المحدد (7.5 ثانية)
+                // عند انتهاء الوقت المحدد (7.5 ثانية) يختفي الاسبلاش فوراً دون ثانية تأخير واحدة
                 if (currentStep >= totalSteps) {
                     clearInterval(progressInterval);
-                    // إذا اكتمل التحميل الفعلي للبيانات والصور نمرر فوراً
-                    if (dataAndImagesLoaded) {
-                        hideSplashAndShowBranches();
-                    } else {
-                        // أمان إضافي: لو الإنترنت بطيء جداً، ننتظر أجزاء من الثانية حتى يكتمل الفيتش بالكامل
-                        const checkDataReady = setInterval(() => {
-                            if (dataAndImagesLoaded) {
-                                clearInterval(checkDataReady);
-                                hideSplashAndShowBranches();
-                            }
-                        }, 50);
-                    }
+                    hideSplashAndShowBranches();
                 }
             }, intervalStep);
 
@@ -686,7 +701,7 @@
             }
 
             try {
-                // جلب بيانات من جوجل شيتس في الخلفية فوراً أثناء حركة العداد
+                // جلب بيانات من جوجل شيتس في الخلفية فوراً بالتوازي أثناء حركة العداد
                 const [menuRes, deliveryRes] = await Promise.all([
                     fetch(MENU_CSV_URL).then(res => res.text()),
                     fetch(DELIVERY_CSV_URL).then(res => res.text())
@@ -695,7 +710,7 @@
                 rawMenuRows = menuRes.split(/\r?\n/).slice(1);
                 rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
-                // تجميع كل روابط صور المنتجات والأقسام لعمل Preload فوري لها
+                // تجميع كل روابط صور المنتجات والأقسام واللوجو لعمل Preload فوري كامل لها
                 let imagesToLoad = new Set();
                 rawMenuRows.forEach(row => {
                     const col = row.split(',');
@@ -704,7 +719,7 @@
                 });
                 imagesToLoad.add(IMAGES_PATH + "llogo.jpg?v=4");
 
-                // تفعيل عملية التحميل المسبق وتخزين الصور بذاكرة المتصفح المؤقتة 
+                // تفعيل عملية التحميل المسبق وتخزين الصور بذاكرة المتصفح المؤقتة بالتوازي مع العداد
                 await preloadImages(Array.from(imagesToLoad));
                 dataAndImagesLoaded = true;
 
@@ -945,6 +960,9 @@
         function filterCat(cat, el) {
             if(el) { document.querySelectorAll('.cat-item').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
             
+            // التحقق البرمجي الذكي لمعرفة ما إذا كان العميل يتصفح قسم "العروض" لعرضه بشكل مخصص
+            const isOffersCategory = cat.trim() === "العروض";
+
             document.getElementById('menuList').innerHTML = menuData.map((item, globalIndex) => {
                 if (item.category !== cat) return '';
 
@@ -1013,6 +1031,25 @@
                     }
                 }
 
+                // إذا كان القسم الحالي هو العروض، يتم تطبيق هيكلة التصميم الكبيرة بدون أزرار أو ملاحظات نهائياً
+                if (isOffersCategory) {
+                    return `
+                        <div class="food-card offers-special-card">
+                            <div class="offers-img-top-container">
+                                <img src="${item.img}" class="menu-food-img" fetchpriority="high" onload="this.classList.add('loaded')" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'">
+                            </div>
+                            <div class="offers-info-container">
+                                <div class="food-title-row">
+                                    <span class="food-name" style="font-size: 1.3rem; font-weight: 800;">${item.name}</span>
+                                    <span class="food-price">${defaultPrice} ج.م</span>
+                                </div>
+                                <span class="food-desc" style="font-size: 0.9rem; line-height: 1.5; margin-top: 4px;">${item.desc}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // البنية الافتراضية الصارمة لبقية الأقسام العادية في المنيو (بدون تغيير أي حرف)
                 return `
                     <div class="food-card">
                         <div class="image-side-container">
@@ -1146,6 +1183,7 @@
             const deliveryTotalEl = document.getElementById('deliveryTotalAmount');
             const grandTotalEl = document.getElementById('grandTotalAmount');
             
+            if(foodTotalEl) foodTotalTotalAmount = `${currentFoodTotal} ج.م`;
             if(foodTotalEl) foodTotalEl.innerText = `${currentFoodTotal} ج.م`;
             if(deliveryTotalEl) deliveryTotalEl.innerText = `${currentDeliveryFee} ج.م`;
             if(grandTotalEl) grandTotalEl.innerText = `${currentFoodTotal + currentDeliveryFee} ج.م`;
