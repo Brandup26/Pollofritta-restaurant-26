@@ -643,44 +643,58 @@
             }));
         }
 
-        // دالة خط أنابيب التحميل المحدثة لتعمل في 5 ثوانٍ كحد أقصى مع عرض النسبة المئوية النصية بدقة لجميع الصور
+        // دالة خط أنابيب التحميل المعدلة لتعمل بانتظام تام مدة 7 ثوانٍ لضمان جلب كافة الصور مسبقاً
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             const percentageText = document.getElementById("loadingPercentage");
-            let progress = 0;
-            let pipelineFinished = false;
+            
+            const totalDuration = 7000; // 7 ثوانٍ
+            const intervalStep = 70;    // التحديث كل 70 مللي ثانية لحركة ناعمة جداً ومستمرة
+            const totalSteps = totalDuration / intervalStep;
+            
+            let currentStep = 0;
+            let dataLoaded = false;
 
-            // تحديث مرئي مستمر للمؤشر والنسبة المئوية النصية في غضون 5 ثوانٍ بحد أقصى
+            // بدء العداد الزمني المنتظم لملء الشريط والنسبة المئوية بصورة ثابتة ومريحة للعين
             const progressInterval = setInterval(() => { 
-                if (progress < 95) { 
-                    progress += 5; 
+                currentStep++;
+                let progress = Math.floor((currentStep / totalSteps) * 100);
+                
+                if (progress <= 100) { 
                     bar.style.width = progress + '%'; 
                     percentageText.innerText = `جاري التحميل ${progress}%`;
-                } 
-            }, 250);
+                }
 
-            // دالة الإغلاق الفوري لشاشة السبراش عند اكتمال خط الأنابيب أو انتهاء الـ 5 ثوانٍ
-            const finishPipeline = () => {
-                if (pipelineFinished) return;
-                pipelineFinished = true;
-                clearInterval(progressInterval);
+                // عند الوصول لنهاية الـ 7 ثوانٍ والتأكد من جلب البيانات، يتم إخفاء الـ Splash
+                if (currentStep >= totalSteps) {
+                    clearInterval(progressInterval);
+                    if (dataLoaded) {
+                        hideSplashAndShowBranches();
+                    } else {
+                        // انتظار إضافي بسيط جداً إذا كان الاتصال ضعيفاً والبيانات لم تكتمل بعد
+                        const checkDataReady = setInterval(() => {
+                            if (dataLoaded) {
+                                clearInterval(checkDataReady);
+                                hideSplashAndShowBranches();
+                            }
+                        }, 100);
+                    }
+                }
+            }, intervalStep);
+
+            function hideSplashAndShowBranches() {
                 bar.style.width = '100%';
                 percentageText.innerText = `جاري التحميل 100%`;
-                
                 setTimeout(() => {
                     document.getElementById('splash-screen').classList.add('splash-hidden');
                     setTimeout(() => { 
                         document.getElementById("branchModal").classList.add("show"); 
                     }, 300);
                 }, 200);
-            };
-
-            // حد أقصى صارم 5 ثوانٍ لإنهاء شاشة التحميل مهما حدث لمنع بقائها معلقة
-            const forceTimeout = setTimeout(() => {
-                finishPipeline();
-            }, 5000);
+            }
 
             try {
+                // جلب بيانات ملفات الاكسل بالتوازي مع العداد الجاري
                 const [menuRes, deliveryRes] = await Promise.all([
                     fetch(MENU_CSV_URL).then(res => res.text()),
                     fetch(DELIVERY_CSV_URL).then(res => res.text())
@@ -697,15 +711,13 @@
                 });
                 imagesToLoad.add(IMAGES_PATH + "llogo.jpg?v=4");
 
-                // تحميل الصور مسبقاً بالتوازي خلال مهلة الـ 5 ثوانٍ المحددة
+                // استغلال وقت الـ 7 ثوانٍ في تحميل كافة مصفوفة الصور داخل كاش المتصفح فوراً
                 await preloadImages(Array.from(imagesToLoad));
-                
-                clearTimeout(forceTimeout);
-                finishPipeline();
+                dataLoaded = true;
 
             } catch (error) {
-                clearTimeout(forceTimeout);
-                finishPipeline();
+                // تلافي أي خطأ في الشبكة لضمان استمرار عمل التطبيق والدخول للمنيو
+                dataLoaded = true;
             }
         }
 
@@ -1012,7 +1024,7 @@
                     <div class="food-card">
                         <div class="image-side-container">
                             <div class="item-img-box">
-                                <img src="${item.img}" fetchpriority="high" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'">
+                                <img src="${item.img}" class="menu-food-img" fetchpriority="high" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'">
                             </div>
                         </div>
                         <div class="food-info">
