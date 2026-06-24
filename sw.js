@@ -1,74 +1,69 @@
-const CACHE_NAME = 'pwa-bolofrita-cache-v4';
+// اسم الكاش - يتم تحديث الرقم (v4) تلقائياً عند تغيير الكود لضمان تجديد الكاش
+const CACHE_NAME = 'polo-fritta-cache-v4';
 
-// قائمة الملفات الأساسية للتشغيل أوفلاين
+// الملفات الأساسية التي يتم حفظها في الكاش ليعمل الأبلكيشن أوفلاين وبسرعة صاروخية
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/images/llogo.jpg'
 ];
 
-// 1. مرحلة التثبيت: كاش مسبق للملفات
+// 1. حدث التثبيت (Install): يتم حفظ الملفات الأساسية في الكاش فوراً
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[Service Worker] Pre-caching static assets');
+      console.log('[Service Worker] Caching core assets');
       return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
+    }).then(() => {
+      // الحتة المحفوظة: تفعيل الـ Service Worker الجديد فوراً دون انتظار إغلاق التبويبات القديمة
+      return self.skipWaiting();
+    })
   );
 });
 
-// 2. مرحلة التفعيل: تدمير الكاش القديم فوراً لتنفيذ التحديثات الجذرية
+// 2. حدث التفعيل (Activate): تنظيف الكاش القديم تماماً لعدم استهلاك مساحة الموبايل
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting obsolete cache:', cache);
+            console.log('[Service Worker] Clearing old cache:', cache);
             return caches.delete(cache);
           }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => {
+      // جعل الـ Service Worker الجديد يسيطر على الصفحة فوراً
+      return self.clients.claim();
+    })
   );
 });
 
-// 3. استراتيجية التحكم والـ Fetch الذكي
+// 3. استراتيجية جلب البيانات (Fetch Strategy): الشبكة أولاً ثم الكاش (Network First, Falling Back to Cache)
+// هذه الاستراتيجية هي الأفضل للمنيو الديناميكي المرتبط بجوجل شيت لضمان ظهور الأسعار الجديدة فوراً للزبون لو كان متصلاً بالإنترنت
 self.addEventListener('fetch', (event) => {
-  const requestUrl = new URL(event.request.url);
-
-  // استراتيجية Network First لملفات الاكسل وجوجل شيتس لضمان الأسعار الفورية
-  if (requestUrl.pathname.includes('csv') || requestUrl.hostname.includes('sheets.google.com')) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, response.clone());
-            return response;
-          });
-        })
-        .catch(() => {
-          return caches.match(event.request);
-        })
-    );
+  // تخطي روابط جوجل شيتس من الكاش لضمان جلب الأسعار اللحظية دائماً من السيرفر
+  if (event.request.url.includes('docs.google.com/spreadsheets')) {
     return;
   }
 
-  // استراتيجية الـ Cache First للمكونات والصور لتوفير سرعة تحميل خارقة
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((networkResponse) => {
-        if (networkResponse.status === 200) {
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
+    fetch(event.request)
+      .then((response) => {
+        // إذا نجح الاتصال بالشبكة، قم بتحديث الكاش بالنسخة الجديدة المستلمة
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
           });
         }
-        return networkResponse;
-      });
-    })
+        return response;
+      })
+      .catch(() => {
+        // في حالة انقطاع الإنترنت، يتم القراءة من الكاش المحفوظ مسبقاً لحماية تجربة المستخدم
+        return caches.match(event.request);
+      })
   );
 });
