@@ -1,4 +1,5 @@
 // تحديث الكاش لضمان تحميل الملفات الفورية وحل مشكلة زر التثبيت الصريح
+// ملحوظة يا هندسة: لما ترفع تعديل جديد ميز الكاش برقم جديد (مثلاً v6) عشان السيستم يلقطه فوراً
 const CACHE_NAME = 'polo-fritta-cache-v5';
 
 const ASSETS_TO_CACHE = [
@@ -39,13 +40,28 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// استراتيجية جلب البيانات (Network First) لضمان السرعة القصوى مع دعم وضع الأوفلاين
+// استراتيجية جلب البيانات لضمان السرعة القصوى مع دعم وضع الأوفلاين والتحديث الفوري
 self.addEventListener('fetch', (event) => {
-  // تجاهل طلبات الـ Google Sheets لتحديث المنيو لحظياً بدون كاش معلق
-  if (event.request.url.includes('docs.google.com')) {
+  const url = new URL(event.request.url);
+
+  // 1. تجاهل طلبات الـ Google Sheets لتحديث المنيو لحظياً بدون كاش معلق
+  if (url.hostname.includes('docs.google.com')) {
     return;
   }
 
+  // 2. السر السحري: منع كاش صفحة الـ index.html والـ Root تماماً من الـ Fetch 
+  // ده بيجبر المتصفح يروح للسيرفر دايماً يتأكد لو فيه كود جديد، فيلقط الـ Service Worker المعدل فوراً
+  if (url.pathname === '/' || url.pathname.endsWith('index.html')) {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // لو مفيش نت خالص (أوفلاين)، بنجيب النسخة المحفوظة في الكاش كخطة بديلة
+        return caches.match(event.request);
+      })
+    );
+    return;
+  }
+
+  // 3. باقي الملفات والصور (باقي الـ Assets اللى محتاجة سرعة وكاش)
   event.respondWith(
     fetch(event.request)
       .then((response) => {
