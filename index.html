@@ -197,6 +197,7 @@
         .brand-addr { font-size: 0.8rem; font-weight: 700; }
         .branch-badge { background: var(--accent); color: white; padding: 3px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 800; margin-top: 3px; cursor: pointer; }
 
+        /* تعديل تكبير حجم أيقونات الأقسام قليلاً */
         .category-nav { 
             display: flex; overflow-x: auto; white-space: nowrap; 
             padding: 10px 24px; gap: 35px; 
@@ -205,7 +206,7 @@
         }
         .category-nav::-webkit-scrollbar { display: none; }
         .cat-item { display: flex; flex-direction: column; align-items: center; min-width: 105px; cursor: pointer; }
-        .cat-img-box { width: 52px; height: 52px; border-radius: 16px; background: #e5e5ea; overflow: hidden; border: 2.5px solid transparent; }
+        .cat-img-box { width: 62px; height: 62px; border-radius: 16px; background: #e5e5ea; overflow: hidden; border: 2.5px solid transparent; }
         .cat-img-box img { width: 100%; height: 100%; object-fit: cover; }
         .cat-item.active .cat-img-box { border-color: var(--accent); transform: scale(1.03); }
         .cat-item span { font-size: 0.8rem; font-weight: 700; color: var(--desc-text); margin-top: 5px; text-align: center; white-space: nowrap; }
@@ -226,7 +227,6 @@
             position: relative; 
         }
 
-        /* تعديل قسم العروض لتظهر الصور كاملة */
         .food-card.offers-special-card {
             flex-direction: column;
             padding: 0;
@@ -244,7 +244,7 @@
         .food-card.offers-special-card .offers-img-top-container img {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* تظهر الصورة بالكامل بدون أي قص */
+            object-fit: contain;
         }
         .food-card.offers-special-card .offers-info-container {
             width: 100%;
@@ -291,9 +291,10 @@
             margin-bottom: 2px;
         }
 
+        /* تعديل تصغير حجم خط الأصناف قليلاً ليصبح متناسقاً */
         .food-name { 
             font-weight: 800; 
-            font-size: 1.2rem; 
+            font-size: 1.05rem; 
             color: var(--main-text); 
             margin: 0; 
             line-height: 1.3;
@@ -628,15 +629,13 @@
             return `${IMAGES_PATH}${encodeURIComponent(fileName)}.jpg?t=${getCacheBuster()}`;
         }
 
-        // دالة ذكية لفحص وتنسيق النصوص والأرقام داخل خانة السعر وحذف ج.م تلقائياً عند وجود نص
         function formatDisplayPrice(priceStr) {
             if (!priceStr) return "";
             let trimmed = priceStr.trim();
-            // إذا كان المدخل يحتوي على أرقام فقط (أو أرقام وعلامة عشرية)، أضف ج.م
+            if (trimmed === "" || trimmed === "0") return "";
             if (/^\d+(\.\d+)?$/.test(trimmed)) {
                 return `${trimmed} ج.م`;
             }
-            // إذا كان نصاً أو يحتوي على حروف أو علامات أخرى (مثل خصم 30%) اعرضه كما هو
             return trimmed;
         }
 
@@ -1081,8 +1080,11 @@
                     }
                 }
 
-                // كارت العروض المعدل - تظهر الصورة كاملة، وفحص ج.م تلقائي للسعر
+                // كارت العروض المعدل - فحص السعر الفارغ أو الخصم النصي
                 if (isOffersCategory) {
+                    const formattedPrice = formatDisplayPrice(defaultPrice);
+                    const priceBadgeHtml = formattedPrice ? `<span class="food-price">${formattedPrice}</span>` : '';
+
                     return `
                         <div class="food-card offers-special-card">
                             <div class="offers-img-top-container">
@@ -1090,14 +1092,17 @@
                             </div>
                             <div class="offers-info-container">
                                 <div class="food-title-row">
-                                    <span class="food-name" style="font-size: 1.3rem; font-weight: 800;">${item.name}</span>
-                                    <span class="food-price">${formatDisplayPrice(defaultPrice)}</span>
+                                    <span class="food-name" style="font-size: 1.2rem; font-weight: 800;">${item.name}</span>
+                                    ${priceBadgeHtml}
                                 </div>
                                 <span class="food-desc" style="font-size: 0.9rem; line-height: 1.5; margin-top: 4px;">${item.desc}</span>
                             </div>
                         </div>
                     `;
                 }
+
+                const formattedPriceNormal = formatDisplayPrice(defaultPrice);
+                const priceBadgeNormalHtml = formattedPriceNormal ? `<span class="food-price" id="price-label-${globalIndex}">${formattedPriceNormal}</span>` : '';
 
                 return `
                     <div class="food-card">
@@ -1109,7 +1114,7 @@
                         <div class="food-info">
                             <div class="food-title-row">
                                 <span class="food-name">${item.name}</span>
-                                <span class="food-price" id="price-label-${globalIndex}">${formatDisplayPrice(defaultPrice)}</span>
+                                ${priceBadgeNormalHtml}
                             </div>
                             <span class="food-desc">${item.desc}</span>
                             ${sizeSelectorHtml}
@@ -1176,9 +1181,13 @@
 
             const finalCartName = `${item.name}${hasMultipleSizes ? ' (' + chosenSize + ')' : ""}`;
             
+            // في حال كان السعر نصي أو فارغ، نعتبر الحساب 0 في السلة لتفادي مشاكل الـ NaN
+            let numericPrice = parseFloat(chosenPrice);
+            if (isNaN(numericPrice)) numericPrice = 0;
+
             const existing = cart.find(c => c.name === finalCartName && c.note === noteValue);
             if (existing) existing.qty += 1; 
-            else cart.push({name: finalCartName, price: chosenPrice, img: item.img, qty: 1, note: noteValue}); 
+            else cart.push({name: finalCartName, price: numericPrice, img: item.img, qty: 1, note: noteValue}); 
 
             const originalText = btn.innerHTML;
             btn.innerHTML = "تم الطلب! ✅";
