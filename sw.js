@@ -3,10 +3,10 @@
 const CACHE_NAME = 'polo-fritta-cache-v5';
 
 const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './manifest.json',
-  './images/llogo.jpg'
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/images/llogo.jpg'
 ];
 
 // تثبيت السيرفس وركر وحفظ الملفات الأساسية فوراً
@@ -14,15 +14,14 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[Service Worker] Caching core app shell');
-      // استخدام طريقتين لضمان الكاش حتى لو فيه ملف غاب
       return cache.addAll(ASSETS_TO_CACHE);
     }).then(() => {
-      return self.skipWaiting(); // التفعيل الفوري
+      return self.skipWaiting(); // التفعيل الفوري وطرد أي وركر قديم
     })
   );
 });
 
-// تنظيف الكاش القديم وتفعيل الوركر الجديد فوراً طرد للقديم
+// تنظيف الكاش القديم تماماً فوراً بمجرد تغيير رقم الإصدار ऊपर
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -45,35 +44,46 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // 1. استثناء طلبات الـ Google Sheets والـ API تماماً للحصول على المنيو والبيانات لحظياً
-  if (url.hostname.includes('docs.google.com') || url.hostname.includes('api')) {
-    return;
+  if (url.hostname.includes('docs.google.com') || url.hostname.includes('api') || url.pathname.includes('ws')) {
+    return; // اتركها للشبكة مباشرة دون تدخل
   }
 
-  // 2. منع كاش صفحة الـ index.html تماماً لإجبار المتصفح على مراجعة السيرفر فوراً
+  // 2. إجبار المتصفح على قراءة الـ index.html من السيرفر فوراً (تحديث فوري للزبائن)
   if (url.pathname === '/' || url.pathname.endsWith('index.html')) {
     event.respondWith(
-      fetch(event.request, { cache: 'no-store' }).catch(() => {
-        return caches.match('./index.html') || caches.match('./');
-      })
+      fetch(event.request, { cache: 'no-store' })
+        .then((networkResponse) => {
+          // إذا نجح التحميل، نحدث الكاش بالنسخة الجديدة في الخلفية لحالات الطوارئ
+          if (networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // لو الزبون معندوش إنترنت، افتح له النسخة المتسيفة فوراً
+          return caches.match('/index.html') || caches.match('/');
+        })
     );
     return;
   }
 
-  // 3. باقي الملفات والصور (سرعة صاروخية مع تحديث في الخلفية)
+  // 3. باقي ملفات الـ CSS والـ JS والصور الثابتة (Network First مع Fallback للكاش)
+  // دي الاستراتيجية الأضمن عشان لو غيرت كود الـ CSS الزبون يشوفه فوراً لو معاه نت، ولو مفيش نت يفتح الكاش
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
           });
         }
         return networkResponse;
-      }).catch(() => null); // منع ضرب الأبلكيشن لو مفيش نت
-
-      // رجّع الكاش فوراً للسرعة، ولو مش موجود استنى السيرفر
-      return cachedResponse || fetchPromise;
-    })
+      })
+      .catch(() => {
+        // في حالة انقطاع الشبكة تماماً، نرجع النسخة المتسيفة في الكاش للسرعة والأمان
+        return caches.match(event.request);
+      })
   );
 });
