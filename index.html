@@ -233,12 +233,15 @@
             width: 100%;
             height: 230px;
             overflow: hidden;
-            background: #e5e5ea;
+            background: rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .food-card.offers-special-card .offers-img-top-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
         .food-card.offers-special-card .offers-info-container {
             width: 100%;
@@ -625,6 +628,13 @@
             return `${IMAGES_PATH}${encodeURIComponent(fileName)}.jpg?t=${getCacheBuster()}`;
         }
 
+        function formatPrice(val) {
+            if (!val) return "0 ج.م";
+            let clean = val.trim();
+            // لو القيمة أرقام فقط، أضف ج.م، لو فيها نصوص أو علامات سيبها زي ما هي
+            return /^\d+$/.test(clean) ? `${clean} ج.م` : clean;
+        }
+
         function parseSheetRowData(category, rawContent, rawIngredients, col3, col4, col5, col6) {
             let content = rawContent ? rawContent.trim() : "";
             let ingredients = rawIngredients ? rawIngredients.trim() : "";
@@ -981,7 +991,7 @@
             selectedSizesState[globalItemIdx] = sizeSelected;
             const priceLabel = document.getElementById(`price-label-${globalItemIdx}`);
             if(priceLabel) {
-                priceLabel.innerText = `${targetPrice} ج.م`;
+                priceLabel.innerText = formatPrice(targetPrice);
             }
             
             const parentCard = priceLabel.closest('.food-card');
@@ -1074,7 +1084,7 @@
                             <div class="offers-info-container">
                                 <div class="food-title-row">
                                     <span class="food-name" style="font-size: 1.3rem; font-weight: 800;">${item.name}</span>
-                                    <span class="food-price">${defaultPrice} ج.م</span>
+                                    <span class="food-price">${formatPrice(defaultPrice)}</span>
                                 </div>
                                 <span class="food-desc" style="font-size: 0.9rem; line-height: 1.5; margin-top: 4px;">${item.desc}</span>
                             </div>
@@ -1092,7 +1102,7 @@
                         <div class="food-info">
                             <div class="food-title-row">
                                 <span class="food-name">${item.name}</span>
-                                <span class="food-price" id="price-label-${globalIndex}">${defaultPrice} ج.م</span>
+                                <span class="food-price" id="price-label-${globalIndex}">${formatPrice(defaultPrice)}</span>
                             </div>
                             <span class="food-desc">${item.desc}</span>
                             ${sizeSelectorHtml}
@@ -1198,7 +1208,7 @@
                             <img src="${item.img}" class="cart-item-img" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'">
                             <div class="cart-item-info">
                                 <span class="cart-item-name">${item.name} (x${item.qty})</span>
-                                <span class="cart-item-price">${parseFloat(item.price) * item.qty} ج.م</span>
+                                <span class="cart-item-price">${formatPrice(String(parseFloat(item.price) * item.qty))}</span>
                             </div>
                             <span class="remove-btn" onclick="removeFromCart(${idx})">حذف</span>
                         </div>
@@ -1215,7 +1225,6 @@
             const deliveryTotalEl = document.getElementById('deliveryTotalAmount');
             const grandTotalEl = document.getElementById('grandTotalAmount');
             
-            if(foodTotalEl) foodTotalTotalAmount = `${currentFoodTotal} ج.م`;
             if(foodTotalEl) foodTotalEl.innerText = `${currentFoodTotal} ج.م`;
             if(deliveryTotalEl) deliveryTotalEl.innerText = `${currentDeliveryFee} ج.م`;
             if(grandTotalEl) grandTotalEl.innerText = `${currentFoodTotal + currentDeliveryFee} ج.م`;
@@ -1254,8 +1263,8 @@
             const branchText = selectedBranchKey === "damanhour" ? "دمنهور" : "أبو حمص";
             let msg = `طلب جديد - مطعم بولوفريتا 🍔\n📍 فرع: ${branchText}\n📦 نوع الطلب: ${currentOrderType === "delivery" ? "🛵 دليفري" : "🛍️ تيك أواي"}\n👤 الاسم: ${n}\n📱 الموبايل: ${p}\n`;
             if(currentOrderType === 'delivery') msg += `📍 منطقة الشحن: ${selectedRegionName}\n🏠 العنوان بالتفصيل: ${a}\n`;
-            msg += `\n📋 الطلبات:\n` + cart.map(i => `- ${i.name} (x${i.qty})${i.note ? ' [ملاحظة: '+i.note+']' : ''} -> ${parseFloat(i.price) * i.qty} ج.م`).join('\n');
-            msg += `\n\n💵 الحساب: ${currentFoodTotal + currentDeliveryFee} ج.م`;
+            msg += `\n📋 الطلبات:\n` + cart.map(i => `- ${i.name} (x${i.qty})${i.note ? ' [ملاحظة: '+i.note+']' : ''} -> ${formatPrice(String(parseFloat(i.price) * i.qty))}`).join('\n');
+            msg += `\n\n💵 الحساب الكلي: ${currentFoodTotal + currentDeliveryFee} ج.م`;
             window.open(`https://wa.me/${BRANCH_WHATSAPP[selectedBranchKey] || "201070033732"}?text=${encodeURIComponent(msg)}`);
         }
     </script>
