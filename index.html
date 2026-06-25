@@ -671,9 +671,8 @@
             const totalSteps = totalDuration / intervalStep;
             
             let currentStep = 0;
-            let dataAndImagesLoaded = false;
 
-            // تشغيل العداد المرئي بانتظام تام
+            // تشغيل العداد المرئي بانتظام تام وسرعة ثابتة ومريحة للمستخدم
             const progressInterval = setInterval(() => { 
                 currentStep++;
                 let progress = Math.floor((currentStep / totalSteps) * 100);
@@ -683,7 +682,6 @@
                     percentageText.innerText = `جاري التحميل ${progress}%`;
                 }
 
-                // عند انتهاء الوقت المحدد (7.5 ثانية) يختفي الاسبلاش فوراً دون ثانية تأخير واحدة
                 if (currentStep >= totalSteps) {
                     clearInterval(progressInterval);
                     hideSplashAndShowBranches();
@@ -713,9 +711,9 @@
                 // تجميع كل روابط صور المنتجات والأقسام واللوجو لعمل Preload فوري كامل لها بالتوازي والتزامن
                 let imagesToLoad = new Set();
                 
-                // إضافة اللوجو الأساسي والأقسام لعملية الـ Preload لضمان التحميل الفوري
                 imagesToLoad.add(IMAGES_PATH + "llogo.jpg?v=4");
                 
+                // هنا الذكاء: يقرأ الكود السطور بالترتيب (من فوق لتحت) ويضعها في ذاكرة المتصفح بنفس أولوية الظهور
                 rawMenuRows.forEach(row => {
                     if (!row || !row.trim()) return;
                     const col = row.split(',');
@@ -739,13 +737,11 @@
                     }
                 });
 
-                // تفعيل عملية التحميل المسبق وتخزين الصور بذاكرة المتصفح المؤقتة بالتوازي مع العداد
+                // تفعيل عملية التحميل المسبق بالتوازي مع العداد لضمان ظهور الكروت محملة بالكامل فور الدخول
                 await preloadImages(Array.from(imagesToLoad));
-                dataAndImagesLoaded = true;
 
             } catch (error) {
                 console.log("Loading fallback applied.");
-                dataAndImagesLoaded = true;
             }
         }
 
@@ -980,7 +976,6 @@
         function filterCat(cat, el) {
             if(el) { document.querySelectorAll('.cat-item').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
             
-            // التحقق البرمجي الذكي لمعرفة ما إذا كان العميل يتصفح قسم "العروض" لعرضه بشكل مخصص
             const isOffersCategory = cat.trim() === "العروض";
 
             document.getElementById('menuList').innerHTML = menuData.map((item, globalIndex) => {
@@ -1051,7 +1046,6 @@
                     }
                 }
 
-                // إذا كان القسم الحالي هو العروض، يتم تطبيق هيكلة التصميم الكبيرة بدون أزرار أو ملاحظات نهائياً
                 if (isOffersCategory) {
                     return `
                         <div class="food-card offers-special-card">
@@ -1069,7 +1063,6 @@
                     `;
                 }
 
-                // البنية الافتراضية الصارمة لبقية الأقسام العادية في المنيو (بدون تغيير أي حرف)
                 return `
                     <div class="food-card">
                         <div class="image-side-container">
