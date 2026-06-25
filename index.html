@@ -93,7 +93,7 @@
             opacity: 0; animation: slideUpFade 0.6s ease-out forwards 0.5s;
         }
         body.dark-mode .loading-bar { background: rgba(255,255,255,0.1); }
-        .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.05s linear; }
+        .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.3s ease-out; }
         
         .loading-percentage {
             font-size: 0.85rem; font-weight: 700; color: var(--accent); margin-top: 8px;
@@ -648,35 +648,45 @@
             };
         }
 
-        // دالة تحميل مسبق للصور لضمان كاش كامل ومثالي أثناء التحميل
-        async function preloadImages(imageArray) {
+        // دالة تحميل مسبق للصور لضمان كاش كامل ومثالي أثناء التحميل وحساب النسبة الفعلي
+        async function preloadImages(imageArray, onProgressClick) {
+            let loadedCount = 0;
+            const total = imageArray.length;
+            if (total === 0) return;
+
             await Promise.all(imageArray.map(src => {
                 return new Promise(resolve => {
                     const img = new Image();
                     img.fetchPriority = "high";
                     img.src = src;
-                    img.onload = img.onerror = resolve;
+                    img.onload = img.onerror = () => {
+                        loadedCount++;
+                        onProgressClick(loadedCount, total);
+                        resolve();
+                    };
                 });
             }));
         }
 
-        // خط الأنابيب الذكي الموزع بدقة زمنية فائقة السرعة
+        // خط الأنابيب الذكي الموزع بدقة زمنية فائقة السرعة ومتناسق مع وقت الدخول الفعلي
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             const percentageText = document.getElementById("loadingPercentage");
             
-            // تحديث العداد المرئي بشكل لحظي ذكي وسريع متناسق مع عملية التحميل الحقيقية
-            let fakeProgress = 0;
-            const progressInterval = setInterval(() => { 
-                if (fakeProgress < 90) {
-                    fakeProgress += 5;
-                    bar.style.width = fakeProgress + '%'; 
-                    percentageText.innerText = `جاري التحميل ${fakeProgress}%`;
+            let totalSteps = 0;
+            let currentStep = 0;
+
+            // تحديث النسبة بناءً على تقدم العمليات الفعلي (ملفات الجوجل شيتس والصور المسبقة)
+            function updateActualProgress() {
+                if (totalSteps > 0) {
+                    let percentage = Math.floor((currentStep / totalSteps) * 100);
+                    if (percentage > 100) percentage = 100;
+                    bar.style.width = percentage + '%'; 
+                    percentageText.innerText = `جاري التحميل ${percentage}%`;
                 }
-            }, 80);
+            }
 
             function hideSplashAndShowBranches() {
-                clearInterval(progressInterval);
                 bar.style.width = '100%';
                 percentageText.innerText = `جاري التحميل 100%`;
                 
@@ -687,16 +697,16 @@
             }
 
             try {
-                // جلب بيانات من جوجل شيتس في الخلفية فوراً بالتوازي
-                const [menuRes, deliveryRes] = await Promise.all([
-                    fetch(MENU_CSV_URL).then(res => res.text()),
-                    fetch(DELIVERY_CSV_URL).then(res => res.text())
-                ]);
+                // خطوة 1 و 2: جلب ملفات جوجل شيتس (نحسبهم كخطوتين مبدئيتين في العداد)
+                totalSteps += 2;
+                
+                const menuRes = await fetch(MENU_CSV_URL).then(res => { currentStep++; updateActualProgress(); return res.text(); });
+                const deliveryRes = await fetch(DELIVERY_CSV_URL).then(res => { currentStep++; updateActualProgress(); return res.text(); });
 
                 rawMenuRows = menuRes.split(/\r?\n/).slice(1);
                 rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
-                // تجميع كل روابط صور المنتجات والأقسام واللوجو لعمل Preload فوري كامل لها بالتوازي والتزامن
+                // تجميع كل روابط صور المنتجات والأقسام واللوجو لعمل Preload
                 let imagesToLoad = new Set();
                 imagesToLoad.add(IMAGES_PATH + "llogo.jpg?v=4");
                 
@@ -723,8 +733,18 @@
                     }
                 });
 
-                // تفعيل عملية التحميل المسبق بالتوازي الفوري لإنهاء الانتظار تماماً
-                await preloadImages(Array.from(imagesToLoad));
+                const imagesArray = Array.from(imagesToLoad);
+                
+                // إضافة عدد الصور الإجمالي إلى خطوات التحميل الكلية لربط العداد بها تماماً
+                const baseStepsBeforeImages = currentStep;
+                totalSteps += imagesArray.length;
+
+                // تفعيل التحميل المسبق وتحديث النسبة مع كل صورة تنتهي فوراً
+                await preloadImages(imagesArray, (loadedCount, totalImages) => {
+                    currentStep = baseStepsBeforeImages + loadedCount;
+                    updateActualProgress();
+                });
+
                 hideSplashAndShowBranches();
 
             } catch (error) {
