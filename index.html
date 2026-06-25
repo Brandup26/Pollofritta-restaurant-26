@@ -7,14 +7,19 @@
     
     <link rel="manifest" href="manifest.json">
     
+    <!-- منع الكاش القديم للمتصفح لضمان قراءة التحديثات فوراً -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     
+    <!-- إعدادات التثبيت كأبلكيشن PWA كامل وصريح -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="بولوفريتا">
     <link class="apple-touch-icon" href="images/llogo.jpg">
+    
+    <!-- ⚡ ميزة الـ Preload الفورية: تحميل الصور الأساسية بالتوازي مع شريط التحميل لفتحها فوراً ⚡ -->
+    <link rel="preload" href="images/llogo.jpg?v=4" as="image" fetchpriority="high">
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -39,9 +44,10 @@
             --header-bg: #1c1c1e;
         }
 
+        /* تسريع ظهور الصور وتقليل تأثير الأنيميشن المبطئ */
         img {
             opacity: 0;
-            transition: opacity 0.4s ease-in-out;
+            transition: opacity 0.15s ease-in-out;
         }
         img.loaded {
             opacity: 1;
@@ -65,7 +71,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--white); z-index: 9999;
             display: flex; justify-content: center; align-items: center;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
             opacity: 1; visibility: visible;
         }
         .loader-content { text-align: center; }
@@ -80,24 +86,24 @@
         .loader-text { 
             font-weight: 800; color: var(--accent); font-size: 1.5rem; margin-bottom: 8px; 
             opacity: 0; transform: translateY(10px);
-            animation: slideUpFade 0.6s ease-out forwards 0.2s;
+            animation: slideUpFade 0.5s ease-out forwards 0.1s;
         }
         .loader-slogan { 
             font-size: 0.9rem; color: var(--desc-text); font-weight: 600; 
             opacity: 0; transform: translateY(10px);
-            animation: slideUpFade 0.6s ease-out forwards 0.4s;
+            animation: slideUpFade 0.5s ease-out forwards 0.2s;
         }
         
         .loading-bar { 
             width: 140px; height: 5px; background: rgba(0,0,0,0.06); margin: 25px auto 0; border-radius: 10px; overflow: hidden; position: relative; 
-            opacity: 0; animation: slideUpFade 0.6s ease-out forwards 0.5s;
+            opacity: 0; animation: slideUpFade 0.5s ease-out forwards 0.3s;
         }
         body.dark-mode .loading-bar { background: rgba(255,255,255,0.1); }
         .loading-bar span { display: block; width: 0; height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.05s linear; }
         
         .loading-percentage {
             font-size: 0.85rem; font-weight: 700; color: var(--accent); margin-top: 8px;
-            opacity: 0; animation: slideUpFade 0.6s ease-out forwards 0.5s;
+            opacity: 0; animation: slideUpFade 0.5s ease-out forwards 0.3s;
         }
 
         @keyframes creativeFloatGlow {
@@ -116,7 +122,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.4); z-index: 9998;
             display: flex; justify-content: center; align-items: center;
-            opacity: 0; visibility: hidden; transition: opacity 0.4s ease;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
             backdrop-filter: blur(8px);
         }
         .branch-modal-backdrop.show { opacity: 1; visibility: visible; }
@@ -221,7 +227,6 @@
             position: relative; 
         }
 
-        /* تنسيق مخصص ملائم ومميز لعرض بطاقة العروض بصورة كبيرة */
         .food-card.offers-special-card {
             flex-direction: column;
             padding: 0;
@@ -456,10 +461,10 @@
 <body>
 
     <script>
-        // كود تشغيل الـ Service Worker مع ميزة التحديث التلقائي الصامت والمراقبة الذكية فور رفع أي تعديل
+        // تفعيل وتحسين تسجيل الـ Service Worker لضمان التقاط الكاش الجديد فوراً بدون مشاكل التثبيت
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('sw.js')
                     .then((reg) => {
                         console.log('Service Worker Registered Successfully!');
                         
@@ -587,7 +592,7 @@
         const getCacheBuster = () => Date.now();
         const MENU_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=0&single=true&output=csv&t=${getCacheBuster()}`;
         const DELIVERY_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTHSm65aVUeQK7mOgP74ADHAqsA5f0iT6PTN7uIRVR2HcwG-3Py_x2xiEelhoRcNvSKLi14qmZCZZqK/pub?gid=1130664195&single=true&output=csv&t=${getCacheBuster()}`;
-        const IMAGES_PATH = "./images/"; 
+        const IMAGES_PATH = "images/"; 
         let rawMenuRows = [], rawDeliveryRows = [];
         let menuData = [], allDeliveryAreas = [], cart = [];
         let currentFoodTotal = 0, currentDeliveryFee = 0, selectedRegionName = "";
@@ -648,7 +653,6 @@
             };
         }
 
-        // دالة تحميل مسبق للصور لضمان كاش كامل ومثالي أثناء التحميل
         async function preloadImages(imageArray) {
             await Promise.all(imageArray.map(src => {
                 return new Promise(resolve => {
@@ -660,20 +664,18 @@
             }));
         }
 
-        // خط الأنابيب الذكي الموزع بدقة زمنية ثابتة لا تتعدى الـ 8 ثواني مطلقاً
+        // خط أنابيب التحميل السريع جداً والمنضبط زمنياً بالملي ثانية
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             const percentageText = document.getElementById("loadingPercentage");
             
-            // ضبط زمن التحميل الإجمالي ليكون 7500 ميللي ثانية (7.5 ثانية بالتمام والكمال) لضمان عدم تخطي الـ 8 ثواني
-            const totalDuration = 7500; 
+            const totalDuration = 7000; 
             const intervalStep = 50;    
             const totalSteps = totalDuration / intervalStep;
             
             let currentStep = 0;
             let dataAndImagesLoaded = false;
 
-            // تشغيل العداد المرئي بانتظام تام
             const progressInterval = setInterval(() => { 
                 currentStep++;
                 let progress = Math.floor((currentStep / totalSteps) * 100);
@@ -683,7 +685,6 @@
                     percentageText.innerText = `جاري التحميل ${progress}%`;
                 }
 
-                // عند انتهاء الوقت المحدد (7.5 ثانية) يختفي الاسبلاش فوراً دون ثانية تأخير واحدة
                 if (currentStep >= totalSteps) {
                     clearInterval(progressInterval);
                     hideSplashAndShowBranches();
@@ -697,11 +698,10 @@
                 document.getElementById('splash-screen').classList.add('splash-hidden');
                 setTimeout(() => { 
                     document.getElementById("branchModal").classList.add("show"); 
-                }, 200);
+                }, 1500);
             }
 
             try {
-                // جلب بيانات من جوجل شيتس في الخلفية فوراً بالتوازي أثناء حركة العداد
                 const [menuRes, deliveryRes] = await Promise.all([
                     fetch(MENU_CSV_URL).then(res => res.text()),
                     fetch(DELIVERY_CSV_URL).then(res => res.text())
@@ -710,16 +710,15 @@
                 rawMenuRows = menuRes.split(/\r?\n/).slice(1);
                 rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
-                // تجميع كل روابط صور المنتجات والأقسام واللوجو لعمل Preload فوري كامل لها
+                // التحميل المسبق فوري للصور في الخلفية أثناء شريط التحميل
                 let imagesToLoad = new Set();
                 rawMenuRows.forEach(row => {
                     const col = row.split(',');
                     if (col[1]) imagesToLoad.add(getSafeImgPath(col[1].trim().replace(/"/g, '')));
                     if (col[0]) imagesToLoad.add(getSafeImgPath(col[0].trim().replace(/"/g, '')));
                 });
-                imagesToLoad.add(IMAGES_PATH + "llogo.jpg?v=4");
+                imagesToLoad.add("images/llogo.jpg?v=4");
 
-                // تفعيل عملية التحميل المسبق وتخزين الصور بذاكرة المتصفح المؤقتة بالتوازي مع العداد
                 await preloadImages(Array.from(imagesToLoad));
                 dataAndImagesLoaded = true;
 
@@ -890,7 +889,7 @@
                         <span class="addr-tag">📍 عنوان فرع دمنهور:</span>
                         <span class="brand-addr">اول شارع 16 أمام كافيه ريو</span>
                     </div>
-                    <div class="branch-badge" onclick="clearBranch()">تغيير الفرع 🔄</div>
+                    <div class="branch-badge" onclick="clearBranch()">تغيير الفرع ??</div>
                 `;
             } else {
                 container.innerHTML = `
@@ -960,7 +959,6 @@
         function filterCat(cat, el) {
             if(el) { document.querySelectorAll('.cat-item').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
             
-            // التحقق البرمجي الذكي لمعرفة ما إذا كان العميل يتصفح قسم "العروض" لعرضه بشكل مخصص
             const isOffersCategory = cat.trim() === "العروض";
 
             document.getElementById('menuList').innerHTML = menuData.map((item, globalIndex) => {
@@ -1031,7 +1029,6 @@
                     }
                 }
 
-                // إذا كان القسم الحالي هو العروض، يتم تطبيق هيكلة التصميم الكبيرة بدون أزرار أو ملاحظات نهائياً
                 if (isOffersCategory) {
                     return `
                         <div class="food-card offers-special-card">
@@ -1049,7 +1046,6 @@
                     `;
                 }
 
-                // البنية الافتراضية الصارمة لبقية الأقسام العادية في المنيو (بدون تغيير أي حرف)
                 return `
                     <div class="food-card">
                         <div class="image-side-container">
@@ -1060,7 +1056,7 @@
                         <div class="food-info">
                             <div class="food-title-row">
                                 <span class="food-name">${item.name}</span>
-                                <span class="food-price" id="price-label-${globalIndex}">${defaultPrice} ج.م</span>
+                                <span class="food-price" id="price-label-${globalIndex}">${defaultPrice} ج.m</span>
                             </div>
                             <span class="food-desc">${item.desc}</span>
                             ${sizeSelectorHtml}
