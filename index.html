@@ -5,16 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بولوفريتا | المنيو الرسمي</title>
     
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#d35400">
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="بولوفريتا">
-    <link class="apple-touch-icon" href="images/llogo.jpg">
+    <link rel="apple-touch-icon" href="images/llogo.jpg">
+    
+    <meta name="mobile-web-app-capable" content="yes">
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -221,7 +224,6 @@
             position: relative; 
         }
 
-        /* تنسيق مخصص ملائم ومميز لعرض بطاقة العروض بصورة كبيرة */
         .food-card.offers-special-card {
             flex-direction: column;
             padding: 0;
@@ -456,24 +458,40 @@
 <body>
 
     <script>
-        // كود تشغيل الـ Service Worker مع ميزة التحديث التلقائي الصامت والمراقبة الذكية فور رفع أي تعديل
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then((reg) => {
                         console.log('Service Worker Registered Successfully!');
                         
+                        // فحص دوري دائم لمعرفة هل السيرفر رفع ملف جديد أم لا
+                        setInterval(() => {
+                            reg.update();
+                        }, 60 * 1000); // يفحص السيرفر كل دقيقة صامتاً
+
+                        // الاستماع للتحديث والعمل الفوري الطارد للكاش القديم
                         reg.addEventListener('updatefound', () => {
                             const newWorker = reg.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('New update detected! Applying smooth silent reload...');
-                                    window.location.reload();
-                                }
-                            });
+                            if (newWorker) {
+                                newWorker.addEventListener('statechange', () => {
+                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                        console.log('New core update found! Reloading silently...');
+                                        window.location.reload();
+                                    }
+                                });
+                            }
                         });
                     })
                     .catch(err => console.log('Service Worker Registration Error:', err));
+            });
+
+            // تأكيد التحويل التلقائي عند تبديل التحكم بالكامل
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    refreshing = true;
+                    window.location.reload();
+                }
             });
         }
 
@@ -648,7 +666,6 @@
             };
         }
 
-        // دالة تحميل مسبق للصور لضمان كاش كامل ومثالي أثناء التحميل وحساب النسبة الفعلي
         async function preloadImages(imageArray, onProgressClick) {
             let loadedCount = 0;
             const total = imageArray.length;
@@ -668,7 +685,6 @@
             }));
         }
 
-        // خط الأنابيب الذكي الموزع بدقة زمنية فائقة السرعة ومتناسق مع وقت الدخول الفعلي
         async function startSmartLoadingPipeline() {
             const bar = document.getElementById("progressBar");
             const percentageText = document.getElementById("loadingPercentage");
@@ -676,7 +692,6 @@
             let totalSteps = 0;
             let currentStep = 0;
 
-            // تحديث النسبة بناءً على تقدم العمليات الفعلي (ملفات الجوجل شيتس والصور المسبقة)
             function updateActualProgress() {
                 if (totalSteps > 0) {
                     let percentage = Math.floor((currentStep / totalSteps) * 100);
@@ -697,7 +712,6 @@
             }
 
             try {
-                // خطوة 1 و 2: جلب ملفات جوجل شيتس (نحسبهم كخطوتين مبدئيتين في العداد)
                 totalSteps += 2;
                 
                 const menuRes = await fetch(MENU_CSV_URL).then(res => { currentStep++; updateActualProgress(); return res.text(); });
@@ -706,7 +720,6 @@
                 rawMenuRows = menuRes.split(/\r?\n/).slice(1);
                 rawDeliveryRows = deliveryRes.split(/\r?\n/).slice(1);
 
-                // تجميع كل روابط صور المنتجات والأقسام واللوجو لعمل Preload
                 let imagesToLoad = new Set();
                 imagesToLoad.add(IMAGES_PATH + "llogo.jpg?v=4");
                 
@@ -735,11 +748,9 @@
 
                 const imagesArray = Array.from(imagesToLoad);
                 
-                // إضافة عدد الصور الإجمالي إلى خطوات التحميل الكلية لربط العداد بها تماماً
                 const baseStepsBeforeImages = currentStep;
                 totalSteps += imagesArray.length;
 
-                // تفعيل التحميل المسبق وتحديث النسبة مع كل صورة تنتهي فوراً
                 await preloadImages(imagesArray, (loadedCount, totalImages) => {
                     currentStep = baseStepsBeforeImages + loadedCount;
                     updateActualProgress();
