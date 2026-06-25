@@ -31,6 +31,7 @@
             --glass: rgba(242, 242, 247, 0.85);
             --success: #34c759;
             --header-bg: #f2f2f7;
+            --offers-bg: #ececed;
         }
 
         body.dark-mode {
@@ -40,6 +41,7 @@
             --white: #1c1c1e;
             --glass: rgba(28, 28, 30, 0.85);
             --header-bg: #1c1c1e;
+            --offers-bg: #151517;
         }
 
         img {
@@ -224,6 +226,7 @@
             position: relative; 
         }
 
+        /* تعديل قسم العروض لتظهر الصور كاملة */
         .food-card.offers-special-card {
             flex-direction: column;
             padding: 0;
@@ -233,15 +236,15 @@
             width: 100%;
             height: 230px;
             overflow: hidden;
-            background: rgba(0,0,0,0.03);
+            background: var(--offers-bg);
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
         }
         .food-card.offers-special-card .offers-img-top-container img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: contain; /* تظهر الصورة بالكامل بدون أي قص */
         }
         .food-card.offers-special-card .offers-info-container {
             width: 100%;
@@ -467,12 +470,10 @@
                     .then((reg) => {
                         console.log('Service Worker Registered Successfully!');
                         
-                        // فحص دوري دائم لمعرفة هل السيرفر رفع ملف جديد أم لا
                         setInterval(() => {
                             reg.update();
-                        }, 60 * 1000); // يفحص السيرفر كل دقيقة صامتاً
+                        }, 60 * 1000); 
 
-                        // الاستماع للتحديث والعمل الفوري الطارد للكاش القديم
                         reg.addEventListener('updatefound', () => {
                             const newWorker = reg.installing;
                             if (newWorker) {
@@ -488,7 +489,6 @@
                     .catch(err => console.log('Service Worker Registration Error:', err));
             });
 
-            // تأكيد التحويل التلقائي عند تبديل التحكم بالكامل
             let refreshing = false;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (!refreshing) {
@@ -628,11 +628,16 @@
             return `${IMAGES_PATH}${encodeURIComponent(fileName)}.jpg?t=${getCacheBuster()}`;
         }
 
-        function formatPrice(val) {
-            if (!val) return "0 ج.م";
-            let clean = val.trim();
-            // لو القيمة أرقام فقط، أضف ج.م، لو فيها نصوص أو علامات سيبها زي ما هي
-            return /^\d+$/.test(clean) ? `${clean} ج.م` : clean;
+        // دالة ذكية لفحص وتنسيق النصوص والأرقام داخل خانة السعر وحذف ج.م تلقائياً عند وجود نص
+        function formatDisplayPrice(priceStr) {
+            if (!priceStr) return "";
+            let trimmed = priceStr.trim();
+            // إذا كان المدخل يحتوي على أرقام فقط (أو أرقام وعلامة عشرية)، أضف ج.م
+            if (/^\d+(\.\d+)?$/.test(trimmed)) {
+                return `${trimmed} ج.م`;
+            }
+            // إذا كان نصاً أو يحتوي على حروف أو علامات أخرى (مثل خصم 30%) اعرضه كما هو
+            return trimmed;
         }
 
         function parseSheetRowData(category, rawContent, rawIngredients, col3, col4, col5, col6) {
@@ -848,12 +853,13 @@
         }
 
         function setOrderType(type) {
-            currentOrderType = type;
             const btnDelivery = document.getElementById("btnDelivery");
             const btnTakeaway = document.getElementById("btnTakeaway");
             const deliveryContainer = document.getElementById("deliverySectionContainer");
             const deliveryFeeRow = document.getElementById("deliveryFeeRow");
             const uAddrInput = document.getElementById("uAddr");
+
+            currentOrderType = type;
 
             if(type === 'takeaway') {
                 btnTakeaway.classList.add("active");
@@ -991,7 +997,7 @@
             selectedSizesState[globalItemIdx] = sizeSelected;
             const priceLabel = document.getElementById(`price-label-${globalItemIdx}`);
             if(priceLabel) {
-                priceLabel.innerText = formatPrice(targetPrice);
+                priceLabel.innerText = formatDisplayPrice(targetPrice);
             }
             
             const parentCard = priceLabel.closest('.food-card');
@@ -1075,6 +1081,7 @@
                     }
                 }
 
+                // كارت العروض المعدل - تظهر الصورة كاملة، وفحص ج.م تلقائي للسعر
                 if (isOffersCategory) {
                     return `
                         <div class="food-card offers-special-card">
@@ -1084,7 +1091,7 @@
                             <div class="offers-info-container">
                                 <div class="food-title-row">
                                     <span class="food-name" style="font-size: 1.3rem; font-weight: 800;">${item.name}</span>
-                                    <span class="food-price">${formatPrice(defaultPrice)}</span>
+                                    <span class="food-price">${formatDisplayPrice(defaultPrice)}</span>
                                 </div>
                                 <span class="food-desc" style="font-size: 0.9rem; line-height: 1.5; margin-top: 4px;">${item.desc}</span>
                             </div>
@@ -1102,7 +1109,7 @@
                         <div class="food-info">
                             <div class="food-title-row">
                                 <span class="food-name">${item.name}</span>
-                                <span class="food-price" id="price-label-${globalIndex}">${formatPrice(defaultPrice)}</span>
+                                <span class="food-price" id="price-label-${globalIndex}">${formatDisplayPrice(defaultPrice)}</span>
                             </div>
                             <span class="food-desc">${item.desc}</span>
                             ${sizeSelectorHtml}
@@ -1208,7 +1215,7 @@
                             <img src="${item.img}" class="cart-item-img" onerror="this.src='${IMAGES_PATH}llogo.jpg?t=${getCacheBuster()}'">
                             <div class="cart-item-info">
                                 <span class="cart-item-name">${item.name} (x${item.qty})</span>
-                                <span class="cart-item-price">${formatPrice(String(parseFloat(item.price) * item.qty))}</span>
+                                <span class="cart-item-price">${parseFloat(item.price || 0) * item.qty} ج.م</span>
                             </div>
                             <span class="remove-btn" onclick="removeFromCart(${idx})">حذف</span>
                         </div>
@@ -1220,7 +1227,7 @@
         }
 
         function updateCartTotals() {
-            currentFoodTotal = cart.reduce((acc, curr) => acc + (parseFloat(curr.price) * curr.qty), 0);
+            currentFoodTotal = cart.reduce((acc, curr) => acc + (parseFloat(curr.price || 0) * curr.qty), 0);
             const foodTotalEl = document.getElementById('foodTotalAmount');
             const deliveryTotalEl = document.getElementById('deliveryTotalAmount');
             const grandTotalEl = document.getElementById('grandTotalAmount');
@@ -1263,8 +1270,8 @@
             const branchText = selectedBranchKey === "damanhour" ? "دمنهور" : "أبو حمص";
             let msg = `طلب جديد - مطعم بولوفريتا 🍔\n📍 فرع: ${branchText}\n📦 نوع الطلب: ${currentOrderType === "delivery" ? "🛵 دليفري" : "🛍️ تيك أواي"}\n👤 الاسم: ${n}\n📱 الموبايل: ${p}\n`;
             if(currentOrderType === 'delivery') msg += `📍 منطقة الشحن: ${selectedRegionName}\n🏠 العنوان بالتفصيل: ${a}\n`;
-            msg += `\n📋 الطلبات:\n` + cart.map(i => `- ${i.name} (x${i.qty})${i.note ? ' [ملاحظة: '+i.note+']' : ''} -> ${formatPrice(String(parseFloat(i.price) * i.qty))}`).join('\n');
-            msg += `\n\n💵 الحساب الكلي: ${currentFoodTotal + currentDeliveryFee} ج.م`;
+            msg += `\n📋 الطلبات:\n` + cart.map(i => `- ${i.name} (x${i.qty})${i.note ? ' [ملاحظة: '+i.note+']' : ''} -> ${parseFloat(i.price || 0) * i.qty} ج.م`).join('\n');
+            msg += `\n\n💵 الحساب: ${currentFoodTotal + currentDeliveryFee} ج.م`;
             window.open(`https://wa.me/${BRANCH_WHATSAPP[selectedBranchKey] || "201070033732"}?text=${encodeURIComponent(msg)}`);
         }
     </script>
