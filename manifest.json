@@ -1,20 +1,23 @@
 {
   "name": "بولوفريتا",
   "short_name": "بولوفريتا",
-  "start_url": "index.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#d35400",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "images/llogo.jpg",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     },
     {
       "src": "images/llogo.jpg",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     }
   ]
 }
