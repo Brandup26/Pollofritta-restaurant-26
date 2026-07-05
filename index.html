@@ -459,10 +459,11 @@
         .user-fields input { background: var(--bg); border: none; padding: 14px; border-radius: 12px; width: 100%; margin-bottom: 8px; color: var(--main-text); text-align: right; outline: none; font-weight: 600; font-size: 0.9rem; }
         .submit-btn { background: #34c759; color: white; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 800; cursor: pointer; font-size: 0.95rem; }
 
-        /* ستايل نافذة الاختيار الجديدة مع زر الإغلاق */
+        /* ستايل نافذة الاختيار الجديدة */
         .choice-modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index: 5000; display:none; justify-content:center; align-items:center; }
         .choice-card { background: var(--white); padding: 25px; border-radius: 25px; width: 90%; max-width: 350px; text-align: center; position: relative; }
-        .choice-close-btn { position: absolute; top: 12px; left: 15px; font-size: 1.2rem; font-weight: 800; color: var(--desc-text); cursor: pointer; user-select: none; }
+        .choice-close-btn { position: absolute; top: 12px; right: 16px; font-size: 1.2rem; font-weight: 800; cursor: pointer; color: var(--desc-text); transition: color 0.2s; }
+        .choice-close-btn:hover { color: #ff3b30; }
         .choice-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px; margin-top: 10px; border-radius: 15px; border:none; font-weight:800; font-size: 1.1rem; cursor:pointer; }
         .btn-normal { background: var(--bg); color: var(--main-text); }
         .btn-spicy { background: var(--accent); color: white; }
@@ -470,9 +471,9 @@
 </head>
 <body>
 
-    <div class="choice-modal" id="choiceModal" onclick="if(event.target==this) { document.getElementById('choiceModal').style.display='none'; }">
+    <div class="choice-modal" id="choiceModal" onclick="if(event.target==this) { document.getElementById('choiceModal').style.display='none'; pendingAddToCart=null; }">
         <div class="choice-card" onclick="event.stopPropagation()">
-            <div class="choice-close-btn" onclick="document.getElementById('choiceModal').style.display='none';">✕</div>
+            <span class="choice-close-btn" onclick="document.getElementById('choiceModal').style.display='none'; pendingAddToCart=null;">✕</span>
             <h3 style="margin-bottom: 20px; margin-top: 10px;">اختر التفضيل:</h3>
             <button class="choice-btn btn-normal" onclick="finalizeChoice('عادي')">عادي</button>
             <button class="choice-btn btn-spicy" onclick="finalizeChoice('سبايسي')">سبايسي 🔥</button>
@@ -1034,7 +1035,13 @@
 
             // الاستثناءات المحدثة بالكامل
             let shouldShowChoice = true;
-            if (isOffersCategory || catIndex >= totalCats - 4 || cat.includes("بحر") || cat.includes("سماش برجر") || (branch === "abu_hummus" && (cat.includes("مشوي") || cat.includes("كفتة") || cat.includes("الكفته") || cat.includes("الكفتة")))) {
+            if (isOffersCategory || 
+                catIndex >= totalCats - 4 || 
+                cat.includes("بحر") || 
+                cat.includes("سماش برجر") || 
+                cat.includes("الاورينتال") || 
+                cat.includes("الأوريونتال") || 
+                (branch === "abu_hummus" && (cat.includes("مشوي") || cat.includes("كفتة")))) {
                 shouldShowChoice = false;
             }
 
