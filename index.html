@@ -197,7 +197,6 @@
         .brand-addr { font-size: 0.8rem; font-weight: 700; }
         .branch-badge { background: var(--accent); color: white; padding: 3px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 800; margin-top: 3px; cursor: pointer; }
 
-        /* تعديل تكبير حجم أيقونات الأقسام قليلاً */
         .category-nav { 
             display: flex; overflow-x: auto; white-space: nowrap; 
             padding: 10px 24px; gap: 35px; 
@@ -291,7 +290,6 @@
             margin-bottom: 2px;
         }
 
-        /* تعديل تصغير حجم خط الأصناف قليلاً ليصبح متناسقاً */
         .food-name { 
             font-weight: 800; 
             font-size: 1.05rem; 
@@ -460,9 +458,26 @@
 
         .user-fields input { background: var(--bg); border: none; padding: 14px; border-radius: 12px; width: 100%; margin-bottom: 8px; color: var(--main-text); text-align: right; outline: none; font-weight: 600; font-size: 0.9rem; }
         .submit-btn { background: #34c759; color: white; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 800; cursor: pointer; font-size: 0.95rem; }
+
+        /* ستايل نافذة الاختيار الجديدة مع زر الإغلاق */
+        .choice-modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index: 5000; display:none; justify-content:center; align-items:center; }
+        .choice-card { background: var(--white); padding: 25px; border-radius: 25px; width: 90%; max-width: 350px; text-align: center; position: relative; }
+        .choice-close-btn { position: absolute; top: 12px; left: 15px; font-size: 1.2rem; font-weight: 800; color: var(--desc-text); cursor: pointer; user-select: none; }
+        .choice-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 15px; margin-top: 10px; border-radius: 15px; border:none; font-weight:800; font-size: 1.1rem; cursor:pointer; }
+        .btn-normal { background: var(--bg); color: var(--main-text); }
+        .btn-spicy { background: var(--accent); color: white; }
     </style>
 </head>
 <body>
+
+    <div class="choice-modal" id="choiceModal" onclick="if(event.target==this) { document.getElementById('choiceModal').style.display='none'; }">
+        <div class="choice-card" onclick="event.stopPropagation()">
+            <div class="choice-close-btn" onclick="document.getElementById('choiceModal').style.display='none';">✕</div>
+            <h3 style="margin-bottom: 20px; margin-top: 10px;">اختر التفضيل:</h3>
+            <button class="choice-btn btn-normal" onclick="finalizeChoice('عادي')">عادي</button>
+            <button class="choice-btn btn-spicy" onclick="finalizeChoice('سبايسي')">سبايسي 🔥</button>
+        </div>
+    </div>
 
     <script>
         if ('serviceWorker' in navigator) {
@@ -614,6 +629,7 @@
         let menuData = [], allDeliveryAreas = [], cart = [];
         let currentFoodTotal = 0, currentDeliveryFee = 0, selectedRegionName = "";
         let currentOrderType = "delivery"; 
+        let pendingAddToCart = null;
         
         const BRANCH_WHATSAPP = {
             damanhour: "201557761617",
@@ -1011,6 +1027,16 @@
             if(el) { document.querySelectorAll('.cat-item').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
             
             const isOffersCategory = cat.trim() === "العروض";
+            const uniqueCats = [...new Map(menuData.map(item => [item.category, item])).values()];
+            const catIndex = uniqueCats.findIndex(c => c.category === cat);
+            const totalCats = uniqueCats.length;
+            const branch = localStorage.getItem("selectedBranch");
+
+            // الاستثناءات المحدثة بالكامل
+            let shouldShowChoice = true;
+            if (isOffersCategory || catIndex >= totalCats - 4 || cat.includes("بحر") || cat.includes("سماش برجر") || (branch === "abu_hummus" && (cat.includes("مشوي") || cat.includes("كفتة") || cat.includes("الكفته") || cat.includes("الكفتة")))) {
+                shouldShowChoice = false;
+            }
 
             document.getElementById('menuList').innerHTML = menuData.map((item, globalIndex) => {
                 if (item.category !== cat) return '';
@@ -1080,7 +1106,6 @@
                     }
                 }
 
-                // كارت العروض المعدل - فحص السعر الفارغ أو الخصم النصي
                 if (isOffersCategory) {
                     const formattedPrice = formatDisplayPrice(defaultPrice);
                     const priceBadgeHtml = formattedPrice ? `<span class="food-price">${formattedPrice}</span>` : '';
@@ -1096,6 +1121,9 @@
                                     ${priceBadgeHtml}
                                 </div>
                                 <span class="food-desc" style="font-size: 0.9rem; line-height: 1.5; margin-top: 4px;">${item.desc}</span>
+                                <div class="action-row" style="margin-top:10px;">
+                                    <button class="add-btn" onclick="addToCartDirect(event, this, ${globalIndex}, '${uniqueInputId}', '${cat}', ${shouldShowChoice})">إضافة للسلة 🛒</button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1120,7 +1148,7 @@
                             ${sizeSelectorHtml}
                             <input type="text" id="${uniqueInputId}" class="item-note-input-menu" placeholder="📝 ملاحظاتك...">
                             <div class="action-row">
-                                <button class="add-btn" onclick="addToCartDirect(event, this, ${globalIndex}, '${uniqueInputId}', '${cat}')">إضافة للسلة 🛒</button>
+                                <button class="add-btn" onclick="addToCartDirect(event, this, ${globalIndex}, '${uniqueInputId}', '${cat}', ${shouldShowChoice})">إضافة للسلة 🛒</button>
                             </div>
                         </div>
                     </div>
@@ -1128,10 +1156,24 @@
             }).join('');
         }
 
-        function addToCartDirect(e, btn, globalIndex, inputId, cat) {
+        function addToCartDirect(e, btn, globalIndex, inputId, cat, shouldShowChoice) {
             e.stopPropagation();
-            if(btn.classList.contains('success-state')) return;
+            if (shouldShowChoice) {
+                pendingAddToCart = { btn, globalIndex, inputId, cat };
+                document.getElementById('choiceModal').style.display = 'flex';
+            } else {
+                processAddToCart(btn, globalIndex, inputId, cat);
+            }
+        }
 
+        function finalizeChoice(choice) {
+            document.getElementById('choiceModal').style.display = 'none';
+            if (pendingAddToCart) {
+                processAddToCart(pendingAddToCart.btn, pendingAddToCart.globalIndex, pendingAddToCart.inputId, pendingAddToCart.cat, choice);
+            }
+        }
+
+        function processAddToCart(btn, globalIndex, inputId, cat, choice = null) {
             const cartBtnEl = document.getElementById('cartBtn');
             if (!cartBtnEl) return;
 
@@ -1179,9 +1221,8 @@
                 hasMultipleSizes = true;
             }
 
-            const finalCartName = `${item.name}${hasMultipleSizes ? ' (' + chosenSize + ')' : ""}`;
+            const finalCartName = `${item.name}${hasMultipleSizes ? ' (' + chosenSize + ')' : ""}${choice ? ' ['+choice+']' : ''}`;
             
-            // في حال كان السعر نصي أو فارغ، نعتبر الحساب 0 في السلة لتفادي مشاكل الـ NaN
             let numericPrice = parseFloat(chosenPrice);
             if (isNaN(numericPrice)) numericPrice = 0;
 

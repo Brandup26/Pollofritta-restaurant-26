@@ -1,6 +1,6 @@
 // تحديث الكاش لضمان تحميل الملفات الفورية وحل مشكلة زر التثبيت الصريح
 // ملحوظة يا هندسة: لما ترفع تعديل جديد ميز الكاش برقم جديد (مثلاً v6)
-const CACHE_NAME = 'polo-fritta-cache-v5';
+const CACHE_NAME = 'polo-fritta-cache-v6';
 
 const ASSETS_TO_CACHE = [
   '/',
